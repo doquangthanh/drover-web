@@ -10,6 +10,7 @@ import { useStore } from "../core/store";
 import { onThemeChange, termOptions, termTheme } from "../core/theme";
 import { isPhone } from "../core/viewport";
 import { FONT, scheduleFit } from "./terminal-fit";
+import { isMouseTrackingOnly } from "./mouse-tracking-filter";
 import type { TermEntry } from "./terminal-entry";
 
 const terms = new Map<string, TermEntry>();
@@ -25,6 +26,7 @@ export function getTerminal(paneId: string): TermEntry {
     fontFamily: FONT, fontSize: isPhone() ? 12 : 13, lineHeight: 1.15,
     ...termOptions(), scrollback: 5000, allowProposedApi: true, macOptionIsMeta: true,
   });
+  term.parser.registerCsiHandler({ prefix: "?", final: "h" }, (params) => isMouseTrackingOnly(params));
   const fit = new FitAddon();
   term.loadAddon(fit);
   try { term.loadAddon(new WebLinksAddon()); } catch { /* optional */ }
