@@ -1,0 +1,31 @@
+/* Phone dialogs: every modal becomes a bottom sheet (PhoneMore, PhoneNewAgent). */
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .scrim { align-items: flex-end; padding-top: 0; }
+  .modal, .modal.wide, .modal.xwide { width: 100%; max-height: calc(var(--vvh, 100dvh) * .92); border-radius: 16px 16px 0 0;
+    border-bottom: 0; background: var(--card); border-color: var(--border2); }
+  .mhead { min-height: 54px; padding: 0 20px; }
+  .mhead h2 { font-size: 15px; }
+  .mbody { padding: 14px 20px 4px; gap: 14px; }
+  .mfoot { padding: 12px 20px max(22px, env(safe-area-inset-bottom)); }
+  .mfoot .btn, .mbody .btn { height: 44px; padding: 0 18px; border-radius: 9px; font-size: 14px; }
+  .mfoot .mono { font-size: 12px; color: var(--dim); }
+  .modal .in { height: 44px; border-radius: 9px; background: var(--m-deep); padding: 0 12px; }
+  .modal textarea.in { height: 70px; padding: 10px 12px; }
+  .modal .lab { font-size: 12px; margin: 0 0 6px; }
+  .modal .chip { height: 40px; padding: 0 14px; gap: 7px; border-radius: 10px; font-size: 14px; }
+  .modal .chip .ic { width: 16px; height: 16px; font-size: 9.5px; }
+  .modal .ck { min-height: 44px; font-size: 14px; }
+  .modal .ck input { width: 18px; height: 18px; }
+  .modal .it { height: 44px; }
+  .modal .it .k { display: none; } /* keyboard hints mean nothing on a phone */
+  .modal .fd { height: 44px; }
+  .modal .qin { height: 44px; }
+
+  /* More sheet */
+  .modal.sheet { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+  .sheet-list { display: flex; flex-direction: column; }
+  .sheet-row { display: flex; align-items: center; gap: 14px; height: 54px; padding: 0 20px; width: 100%; border: 0;
+    border-bottom: 1px solid var(--border); background: none; color: var(--fg); font-size: 15px; text-align: left; }
+  .sheet-row:last-child { border-bottom: 0; }
+  .sheet-row .i { width: 18px; height: 18px; color: var(--muted); }
+}

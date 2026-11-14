@@ -1,0 +1,100 @@
+/* Responsive layers between the desktop base styles and the phone styles. mobile*.css load AFTER this file, so on a
+   phone they still win. Phone = narrow window or a touch device turned sideways (see js/viewport.js).
+     1. tablet / narrow desktop (761-1100px)   2. touch input on any screen   3. wide + ultra-wide
+     4. sizes that never overflow, safe areas, reduced motion */
+
+/* --- 1. tablet and narrow desktop: tighter side columns, stacked side panels --- */
+@media (min-width: 761px) and (max-width: 1100px) and (pointer: fine),
+       (min-width: 761px) and (max-width: 1100px) and (min-height: 501px) {
+  #sidebar { width: 224px; }
+  .inbox-wrap, .msplit { flex-direction: column; }
+  .inbox-wrap > .view.inbox, .msplit > .mgrid { flex: none; }
+  .inbox-side, .madd { width: auto; border-left: 0; border-top: 1px solid var(--border); }
+  .cfiles { width: 200px; }
+  .scol { width: 190px; }
+  .ssplit > .snav { width: 160px; }
+  .rtres { width: 280px; }
+  .sp-l { width: 340px; }
+  .fp-pl { width: 168px; }
+  .keysgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .grid2 { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .tprev { width: 260px; height: 146px; }
+  .ilist { width: 210px; }
+}
+/* portrait tablet: no room for a preview beside the results or a places list beside the folders,
+   and two-column screens (Changes, Files) stack like they do on a phone */
+@media (min-width: 761px) and (max-width: 900px) and (min-height: 501px) {
+  .sp-r, .fp-pl { display: none; }
+  .sp-l { width: 100%; border-right: 0; }
+  .vsplit { flex-direction: column; }
+  .vsplit > .panel { width: 100% !important; min-width: 0; }
+  .vsplit > .panel:not(.cwt) { flex: 1 1 0 !important; min-height: 0; }
+  .cwt { max-height: 36%; flex: none !important; }
+  .csplit { flex-direction: column; }
+  .cfiles { width: 100% !important; max-height: 32%; border-right: 0 !important; }
+}
+
+/* --- 2. touch: every control reaches ~40px and nothing hides behind :hover --- */
+@media (pointer: coarse) {
+  .btn { min-height: 40px; } .btn.sm { min-height: 34px; }
+  .ibtn { width: 40px; height: 40px; }
+  .pb { min-height: 36px; min-width: 36px; justify-content: center; }
+  .tab { height: 36px; }
+  .tab .x { display: inline; padding: 6px 8px; }
+  .seg { min-height: 34px; } .chip { min-height: 36px; }
+  .in, .qin { height: 40px; }
+  .brand { height: 50px; } .shead { height: 40px; } .mach { height: 36px; }
+  .srow, .fileitem, .cf, .ag, .nav, .it, .fd, .pl, .node, .lrow { min-height: 40px; height: auto; }
+  .srow .sclose, .mach .ibtn { width: 32px; height: 32px; }
+  .split.row > .gutter { width: 16px; } .split.col > .gutter { height: 16px; }
+  .phead { height: 36px; } .phead .ibtn { opacity: 1; width: 30px; height: 30px; }
+  /* iOS / iPadOS zoom into fields under 16px */
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea, .fcode .ace_text-input { font-size: 16px; }
+}
+
+/* --- 3. wide and ultra-wide: a readable column instead of cards stretched across 2000px --- */
+@media (min-width: 1500px) {
+  #sidebar { width: 280px; }
+  .view.inbox { max-width: none; }
+  .view.inbox > * { max-width: 980px; }
+  .mgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid2 { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
+}
+@media (min-width: 2200px) { .view.inbox > * { max-width: 1100px; } }
+
+/* --- 4. never wider than the screen, notches, reduced motion --- */
+.modal { max-width: 96vw; }
+.welcome .card { width: min(460px, calc(100% - 32px)); }
+.win { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  .spin { animation-duration: 2.4s !important; animation-iteration-count: infinite !important; } /* keep the "working" cue, slowly */
+}
+
+/* --- 5. top bar + status bar stay on one line (long paths / hints get clipped, never wrapped over the content) --- */
+.vbar > .desk.row:not(:last-child) { min-width: 0; overflow: hidden; white-space: nowrap; }
+.vbar > .desk.row:not(:last-child) > * { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vbar > .desk.row:last-child { flex: none; }
+.status { overflow: hidden; white-space: nowrap; }
+.status > :not(.grow):not(.trunc) { flex: none; }
+.status > .trunc { flex: 0 1 auto; min-width: 0; }
+@media (max-width: 1100px) { .status > .trunc { display: none; } }
+@media (pointer: coarse) {
+  .status { height: 34px; }
+  .status .gb { height: auto; min-height: 30px; padding: 0 8px; }
+  .status > span:last-child:not(.prefix-on) { display: none; } /* "Ctrl B ?" hint means nothing without a keyboard */
+}
+
+/* --- 6. terminal on touch: the finger scrolls the scrollback (js/terminal-touch-scroll.js), the browser must not pan --- */
+.term-bottom { display: none; }
+@media (pointer: coarse) {
+  .term { touch-action: none; overscroll-behavior: contain; }
+  .term-bottom.on { display: inline-flex; position: absolute; right: 12px; bottom: 12px; z-index: 6; width: 44px; height: 44px;
+    align-items: center; justify-content: center; border: 1px solid var(--border2); border-radius: 50%; padding: 0;
+    background: var(--raised); color: var(--fg); box-shadow: 0 6px 18px -6px rgba(0, 0, 0, .6); }
+  .term-bottom.on::before { content: ""; width: 20px; height: 20px; background: currentColor;
+    -webkit-mask: var(--down-arrow) center / contain no-repeat; mask: var(--down-arrow) center / contain no-repeat; }
+  :root { --down-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v14M5 12l7 7 7-7'/%3E%3C/svg%3E"); }
+}

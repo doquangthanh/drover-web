@@ -1,0 +1,142 @@
+/* Phone / narrow window (<= 760px). One screen at a time, driven by body[data-m] (mobile-nav.js):
+     home = agent list   pane = one terminal, full screen   view = Inbox, Files, Changes, Settings, ...
+   A bottom tab bar replaces the sidebar footer. Views and sheets live in mobile-views.css / mobile-sheets.css. */
+.mobile-only, #bottomnav, #fab, .m-phead, .m-ihead, .m-isearch { display: none !important; }
+.keybar { display: none !important; }
+
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  :root { --nav-h: 66px; --m-deep: #0d0e10; --m-field: #1f2125; }
+  :root[data-theme="light"] { --m-deep: var(--canvas); --m-field: var(--raised); }
+  :root[data-theme="midnight"] { --m-deep: var(--chrome); --m-field: var(--raised); }
+  body { font-size: 14px; }
+  /* --vvh follows the on-screen keyboard (mobile-nav.js); the top padding keeps content below the notch */
+  .win { inset: 0 0 auto 0; height: var(--vvh, 100dvh); padding-top: env(safe-area-inset-top); background: var(--chrome); }
+  .mobile-only { display: inline-flex !important; }
+  #conn-banner { top: calc(10px + env(safe-area-inset-top)); }
+  #toasts { left: 16px; right: 16px; width: auto; bottom: calc(var(--nav-h) + 12px + env(safe-area-inset-bottom)); }
+
+  /* --- which screen is showing --- */
+  #sidebar { width: 100%; border-right: 0; }
+  body[data-m="home"] #main, body[data-m="pane"] #sidebar, body[data-m="view"] #sidebar { display: none; }
+  body[data-m="home"] #sidebar { overflow-y: auto; padding-bottom: calc(var(--nav-h) + 84px + env(safe-area-inset-bottom)); }
+  body[data-m="view"] #main { padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom)); }
+  body[data-m="view"] #altview { background: var(--canvas); }
+  body[data-m="pane"] .win { background: var(--pane); }
+
+  /* --- home: spaces + agents (PhoneAgents) --- */
+  .brand { height: 48px; padding: 0 10px 0 14px; }
+  .brand .logo { width: 24px; height: 24px; }
+  .brand .name { font-size: 15px; }
+  .brand .ibtn { width: 44px; height: 44px; }
+  .brand .ibtn .i { width: 18px; height: 18px; }
+  .brand .ibtn[aria-label="Hide sidebar"], .sfoot, .mach .ibtn, .srow .sclose { display: none !important; }
+  .sb-half { flex: none; border-top: 0 !important; }
+  .slist { overflow: visible; padding: 0 8px; }
+  .shead, .sb-half .shead { height: 34px !important; padding: 0 18px 0 16px; font-size: 12px; }
+  .shead .ibtn { width: 40px; height: 34px; margin-right: -12px; font-size: 16px; }
+  .sb-half + .sb-half .shead { margin-top: 8px; }
+  .mach { height: 30px; padding: 0 8px; gap: 7px; font-size: 11.5px; }
+  .mach:not(:first-child) { margin-top: 6px; }
+  .mach .i { width: 14px; height: 14px; }
+  .mach .dot { width: 7px; height: 7px; }
+  .grp { height: 24px; font-size: 11.5px; }
+  .srow { height: 48px; padding: 0 10px; gap: 10px; border-radius: 10px; font-size: 15px; }
+  .srow .git { font-size: 12px; }
+  .srow .t { font-size: 12px; }
+  .srow .av { width: 20px; height: 20px; font-size: 11px; }
+  .srow .ic { width: 16px; height: 16px; font-size: 9.5px; }
+  .srow .pill, .sb-half .pill { height: 20px; padding: 0 7px; border-radius: 6px; font-size: 11px; }
+  .srow .spin { width: 13px; height: 13px; border-width: 2px; }
+  .srow .dot.done, .srow .dot.unread { width: 8px; height: 8px; }
+
+  /* --- bottom tab bar + new-agent button (PhoneNav) --- */
+  #bottomnav { display: flex !important; position: fixed; left: 0; right: 0; bottom: 0; z-index: 15;
+    height: calc(var(--nav-h) + env(safe-area-inset-bottom)); padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    background: var(--chrome); border-top: 1px solid var(--border); }
+  body[data-m="pane"] #bottomnav { display: none !important; }
+  .mt { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    border: 0; background: none; color: var(--muted); font: 500 10.5px var(--ui); min-width: 0; }
+  .mt.on { color: var(--accent); }
+  .mt-ic { position: relative; display: inline-flex; }
+  .mt-ic .i { width: 22px; height: 22px; }
+  .mt-ic .count { position: absolute; top: -6px; right: -11px; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 8px;
+    background: var(--blocked); color: #101114; font: 700 10px/15px var(--ui); text-align: center; }
+  body[data-m="home"] #fab { display: inline-flex !important; position: fixed; right: 16px; z-index: 14;
+    bottom: calc(var(--nav-h) + 16px + env(safe-area-inset-bottom)); height: 48px; padding: 0 18px; gap: 8px;
+    align-items: center; border: 0; border-radius: 24px; background: var(--accent); color: var(--on-accent);
+    font: 600 14px var(--ui); box-shadow: 0 8px 24px -6px rgba(0, 0, 0, .55); }
+  #fab .i { width: 16px; height: 16px; stroke-width: 2.4; }
+
+  /* --- top bar: plain title on Files / Changes / Settings ... (48px, chrome) --- */
+  .tabs { height: 48px; padding: 0 14px; gap: 6px; }
+  .tabs .title { font-size: 15px; padding: 0; }
+  .tabs .pb { height: 36px; min-width: 36px; justify-content: center; font-size: 13px; }
+  .tabs .pb.wide { display: none; }
+  body[data-m="view"] .tabs > .pb:first-child { display: none; }
+  .mobile-back { display: inline-flex !important; }
+
+  /* --- terminal screen (PhonePane): header = back, name + place + tab dots, Files, More --- */
+  body[data-m="pane"] .tabs { height: auto; min-height: 60px; padding: 6px 8px 8px; gap: 0; overflow: visible;
+    align-items: flex-end; background: var(--pane); border-bottom: 0; }
+  body[data-m="pane"] .tabs > .tab, body[data-m="pane"] .tabs > .grow,
+  body[data-m="pane"] .tabs > .pb[aria-label="New agent"], body[data-m="pane"] .tabs > .pb[aria-label="Show sidebar"] { display: none; }
+  body[data-m="pane"] .tabs > .pb { width: 44px; height: 44px; color: var(--muted); }
+  body[data-m="pane"] .tabs > .pb .i { width: 20px; height: 20px; }
+  body[data-m="pane"] .tabs > .mobile-back { order: 0; color: var(--accent); }
+  body[data-m="pane"] .tabs > .mobile-back .i { width: 22px; height: 22px; }
+  body[data-m="pane"] .tabs > .pb.mobile-only { order: 2; }
+  body[data-m="pane"] .tabs > .m-phead { display: block !important; order: 1; flex: 1; min-width: 0; text-align: center; padding-bottom: 4px; }
+  .m-pt { font-weight: 600; font-size: 16px; }
+  .m-ps { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .m-dots { display: flex; justify-content: center; gap: 0; margin-top: 1px; }
+  .m-dot { height: 24px; min-width: 18px; padding: 0; border: 0; background: none; display: inline-flex; align-items: center; justify-content: center; }
+  .m-dot span { width: 5px; height: 5px; border-radius: 50%; background: var(--faint); }
+  .m-dot.on span { background: var(--fg); }
+  .body { padding: 0; }
+  .split > .slot:not(.has-focus), .split > .gutter { display: none !important; }
+  .pane { border-radius: 0; border: 0; background: var(--pane); }
+  .phead, .status { display: none; }
+  .term { padding: 8px 14px 4px; }
+  .stopped { font-size: 15px; }
+  .findbar { height: auto; flex-wrap: wrap; padding: 6px 12px; }
+  .findbar input { flex: 1; width: auto; min-width: 0; }
+  .findbar .meta:last-child { display: none; }
+
+  /* key strip above the keyboard, then the message box */
+  .pane.focus .keybar { display: flex !important; }
+  .keybar { flex-direction: column; flex: none; background: var(--pane); }
+  .kb-keys { display: flex; gap: 8px; padding: 10px 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    border-top: 1px solid var(--border); }
+  .kb-keys button { min-width: 44px; height: 40px; padding: 0 10px; border-radius: 9px; border: 0; background: var(--raised);
+    color: var(--fg); font: 500 14px var(--ui); flex: none; }
+  .kb-keys button:first-child { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .kb-compose { display: flex; gap: 8px; align-items: center; padding: 8px 12px calc(10px + env(safe-area-inset-bottom)); }
+  .keybar .compose { flex: 1; min-width: 0; height: 44px; border-radius: 22px; border: 1px solid var(--border2);
+    background: var(--m-deep); padding: 0 16px; color: var(--fg); }
+  .kb-send, .kb-mic { width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; flex: none; position: relative;
+    display: inline-flex; align-items: center; justify-content: center; }
+  .kb-mic .i { width: 18px; height: 18px; }
+  .kb-mic { background: var(--raised); color: var(--fg); }
+  .kb-mic[aria-pressed="true"] { background: var(--blocked); color: #101114; }
+  .kb-send { background: var(--accent); color: var(--on-accent); font-size: 0; } /* the word "Send" becomes an up arrow */
+  .kb-send::before { content: ""; position: absolute; inset: 13px; background: currentColor;
+    -webkit-mask: var(--m-arrow) center / contain no-repeat; mask: var(--m-arrow) center / contain no-repeat; }
+  :root { --m-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 19V5M5 12l7-7 7 7'/%3E%3C/svg%3E"); }
+}
+
+/* Phone turned sideways (touch + short viewport): slimmer chrome so the terminal keeps its height, notch-safe sides */
+@media (pointer: coarse) and (max-height: 500px) {
+  :root { --nav-h: 48px; }
+  #bottomnav { padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left); }
+  .mt { flex-direction: row; gap: 6px; font-size: 12px; }
+  .mt-ic .i { width: 20px; height: 20px; }
+  .brand { height: 44px; }
+  body[data-m="pane"] .tabs { min-height: 44px; padding: 2px 8px; }
+  .m-ps { display: none; }
+  body[data-m="home"] #fab { height: 40px; padding: 0 16px; }
+  .kb-keys { padding: 4px 12px; } .kb-keys button { height: 32px; }
+  .kb-compose { padding-top: 4px; } .keybar .compose { height: 38px; } .kb-send, .kb-mic { width: 38px; height: 38px; }
+}
+@media (pointer: coarse) and (max-height: 500px) {
+  body[data-m="home"] #fab { font-size: 0; gap: 0; width: 44px; height: 44px; padding: 0; justify-content: center; border-radius: 50%; } /* icon only */
+}

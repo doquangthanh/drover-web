@@ -1,0 +1,41 @@
+/* Changes on a phone (js/views/changes-phone.js): file list step + full-screen diff step. Only built on phones. */
+.cphone { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--canvas); }
+
+/* list step */
+.chead { flex: none; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 14px; font-size: 13px;
+  border-bottom: 1px solid var(--border); }
+.chead .gb { height: 28px; max-width: 52%; padding: 0 10px; font-size: 12.5px; }
+.chead .chip { max-width: 38%; font-family: var(--mono); }
+.chead .add, .chead .rem, .cfr .add, .cfr .rem { font-size: 12.5px; }
+.cwt-toggle { flex: none; display: flex; align-items: center; gap: 10px; width: 100%; min-height: 46px; padding: 0 14px; border: 0;
+  border-bottom: 1px solid var(--border); background: none; color: var(--fg); text-align: left; }
+.cwt-open { flex: none; max-height: 42%; overflow: auto; padding: 6px; background: var(--pane); border-bottom: 1px solid var(--border); }
+.cfl { flex: 1; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; }
+.cfr { width: 100%; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 14px; border: 0; color: var(--fg);
+  border-bottom: 1px solid rgb(var(--ink) / .06); background: none; text-align: left; }
+.cfr:active { background: var(--hover); }
+.cfr .cs { width: 24px; height: 24px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px;
+  font-weight: 700; background: rgb(var(--blocked-rgb) / .15); }
+.cfr .cs.A { background: rgb(76 196 140 / .14); } .cfr .cs.D { background: rgb(224 108 117 / .15); }
+.cfn { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.cfb { font-size: 15px; font-weight: 500; }
+.cfn .meta { font-size: 12px; }
+.cempty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 24px; text-align: center; }
+.cempty-t { font-size: 17px; font-weight: 600; }
+.cbar { flex: none; display: flex; gap: 8px; padding: 10px 14px; background: var(--chrome); border-top: 1px solid var(--border); }
+.cbar .btn { flex: 1; min-height: 46px; justify-content: center; font-size: 14.5px; border-radius: 10px; }
+.cbar .cmore { flex: none; width: 52px; padding: 0; font-size: 22px; }
+
+/* diff step */
+.cdh { flex: none; display: flex; align-items: center; gap: 2px; padding: 6px 8px 6px 4px; background: var(--chrome); border-bottom: 1px solid var(--border); }
+.cdh .ibtn { width: 42px; height: 44px; flex: none; font-size: 22px; color: var(--fg); }
+.cdh .chip { flex: none; min-height: 32px; padding: 0 10px; margin: 0 2px; font-size: 12.5px; }
+.cdh .ibtn:disabled { opacity: .35; }
+.cdt { min-width: 0; padding: 0 4px; }
+.cdn { font-weight: 600; font-size: 15px; }
+.cdt .meta { font-size: 11.5px; }
+.cdb { flex: 1; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; padding: 6px 0 24px; background: var(--pane); }
+.cdb .diff { font-size: 12.5px; line-height: 19px; }
+.cdb .diff div { padding: 0 12px; }
+.cdb:not(.wrap) .diff { min-width: max-content; }
+.cdb.wrap .diff div { white-space: pre-wrap; overflow-wrap: anywhere; padding-left: calc(12px + 4ch); text-indent: -4ch; } /* hanging indent under the line number */

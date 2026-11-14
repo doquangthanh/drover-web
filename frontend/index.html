@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>herd</title>
+<script>try{var t=localStorage.getItem("herd-theme");if(t&&t!=="auto")document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="icon" type="image/png" href="/static/favicon.png">
+</head>
+<body>
+<div id="app" class="win">
+  <aside id="sidebar" aria-label="Spaces and agents"></aside>
+  <main id="main">
+    <header id="topbar" class="tabs"></header>
+    <div id="workspace" class="body"></div>
+    <div id="altview" class="altview" hidden></div>
+    <footer id="statusbar" class="status"></footer>
+  </main>
+</div>
+<div id="overlay-root"></div>
+<div id="toasts" aria-live="polite"></div>
+<div id="conn-banner" hidden>Reconnecting to herd-server…</div>
+<script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

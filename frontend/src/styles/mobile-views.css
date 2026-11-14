@@ -1,0 +1,89 @@
+/* Phone screens: Inbox, Files, editor, Changes, Settings (PhoneList / PhoneFiles / PhoneEditor / PhoneChanges / PhoneSettings).
+   Layout rules only; the markup is the desktop markup. */
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .view { padding: 12px 14px 24px; }
+  .vsplit { flex-direction: column; padding: 6px; gap: 6px; }
+  .vsplit > .panel { width: 100% !important; min-width: 0; }
+  .vsplit > .panel:not(.cwt) { flex: 1 1 0 !important; min-height: 0; }
+  .panel .ph { height: 50px; padding: 0 10px 0 14px; gap: 6px; font-size: 14px; }
+  .panel .ph .btn { height: 36px; border-radius: 8px; font-size: 13px; padding: 0 14px; }
+  .panel .ph .btn.pri { border: 0; }
+  .panel .ph .mono { font-size: 12px; }
+  .seg { height: 32px; padding: 0 11px; border-radius: 7px; font-size: 13px; }
+  .btn { min-height: 36px; }
+  .chip { min-height: 34px; }
+  input, select, textarea, .fcode .ace_text-input { font-size: 16px !important; } /* iOS zooms into smaller fields */
+
+  /* --- Inbox: big title, search pill, flat rows --- */
+  body[data-view="inbox"] #altview { background: var(--m-deep); }
+  body[data-view="inbox"] .tabs { height: auto; flex-wrap: wrap; padding: 0; gap: 0; background: var(--m-deep); border-bottom: 0; overflow: visible; }
+  body[data-view="inbox"] .tabs > .pb, body[data-view="inbox"] .tabs > .grow { display: none; }
+  body[data-view="inbox"] .tabs .title { order: 1; flex: 0 0 100%; padding: 4px 20px 0; font-size: 32px; font-weight: 700; letter-spacing: -.5px; }
+  body[data-view="inbox"] .tabs > .m-ihead { display: flex !important; order: 0; flex: 0 0 100%; height: 64px; align-items: flex-end;
+    justify-content: flex-end; padding: 0 16px; }
+  body[data-view="inbox"] .tabs > .m-isearch { display: flex !important; order: 2; flex: 0 0 auto; width: calc(100% - 32px); margin: 12px 16px 4px;
+    height: 44px; align-items: center; gap: 8px; padding: 0 14px; border: 0; border-radius: 22px; background: var(--m-field);
+    color: var(--dim); font-size: 15px; text-align: left; }
+  .m-ibtn { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--m-field); color: var(--accent);
+    display: inline-flex; align-items: center; justify-content: center; }
+  .m-ibtn .i { width: 20px; height: 20px; }
+  body[data-view="inbox"] .view { padding: 0 0 24px; gap: 0; max-width: none !important; }
+  body[data-view="inbox"] .view > .row { padding: 12px 16px 0; overflow-x: auto; scrollbar-width: none; }
+  body[data-view="inbox"] .view > .row .seg { height: 34px; flex: none; }
+  body[data-view="inbox"] .view > .row .btn { flex: none; }
+  .sechead { font-size: 13px; color: var(--dim); padding: 18px 20px 6px; }
+  .card, .lrow { position: relative; min-height: 60px; padding: 8px 20px; gap: 8px; border: 0; border-radius: 0; background: none; }
+  .card.on { background: var(--hover); }
+  .card + .card::before, .lrow + .lrow::before, .card + .lrow::before, .lrow + .card::before { content: ""; position: absolute; top: 0;
+    left: 60px; right: 0; height: 1px; background: rgb(var(--ink) / .06); }
+  .card .top, .lrow { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; column-gap: 12px; align-items: center; }
+  .lrow { min-height: 60px; }
+  .card .top > :nth-child(1), .lrow > :nth-child(1) { grid-area: 1 / 1 / 3 / 2; width: 28px; height: 28px; border-radius: 8px; font-size: 13px; }
+  .card .top > :nth-child(2), .lrow > :nth-child(2) { grid-area: 1 / 2; font-size: 15.5px; font-weight: 500; }
+  .card .top > :nth-child(3), .lrow > :nth-child(3) { grid-area: 2 / 2; margin-top: 3px; font-size: 13px; color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .top > :nth-child(4), .lrow > :nth-child(4) { grid-area: 1 / 3 / 3 / 4; }
+  .card .top > :nth-child(5), .lrow > :nth-child(5) { grid-area: 1 / 2; justify-self: end; width: 8px; height: 8px; }
+  .card .pill, .lrow .pill { height: 20px; padding: 0 7px; border-radius: 6px; font-size: 11.5px; }
+  .card .spin, .lrow .spin { width: 14px; height: 14px; border-width: 2px; }
+  .card .dot.done { width: 8px; height: 8px; }
+  .card .ex, .card > .row { padding-left: 40px; }
+  .card > .row { flex-wrap: wrap; }
+  .card > .row .btn { min-height: 40px; }
+
+  /* --- Files (tree) and editor --- */
+  .ftree { padding: 6px; }
+  .fileitem { height: 44px; padding: 0 12px; gap: 9px; border-radius: 8px; font: 13.5px var(--mono); }
+  .fileitem .caret { width: 10px; }
+  .fi { width: 18px; height: 18px; }
+  .fi-badge { height: 14px; }
+  .fb { min-width: 18px; height: 18px; padding: 0 5px; font-size: 10.5px; }
+  .fdot { width: 7px; height: 7px; }
+  .panel .ph .btn[title="New file"], .panel .ph .btn[title="Reload"] { width: 38px; padding: 0; justify-content: center; font-size: 15px; }
+  .panel .ph .btn.mobile-only { width: 36px; padding: 0; justify-content: center; font-size: 18px; } /* back to the tree */
+  .panel.focus.grow > .ph { padding: 0 8px; }
+  .fcode.ace_editor { font-size: 12.5px !important; line-height: 20px !important; }
+  .codeview { font-size: 12.5px; }
+
+  /* --- Changes: worktrees on top, the diff below --- */
+  .cwt { max-height: 36%; flex: none !important; }
+  .cwt .ph { height: 40px; }
+  .cwt .pb-body { padding: 6px; }
+  .cwt .srow { height: auto; min-height: 44px; border-radius: 8px; }
+  .csplit { flex-direction: column; }
+  .cfiles { width: 100% !important; max-height: 32%; padding: 0 6px !important; border-right: 0 !important; }
+  .cfiles .fileitem { background: var(--hover); font-size: 13px; }
+  .panel .ph[style*="flex-wrap"] { padding: 10px 12px; row-gap: 8px; min-height: 0 !important; }
+  .diff { font-size: 12.5px; }
+  .diff div { padding: 0 12px; }
+
+  /* --- Settings, Machines, Server, Tree --- */
+  .settings-split { height: auto; min-height: 100%; }
+  .snav { width: 100% !important; border-right: 0 !important; border-bottom: 1px solid var(--border); overflow: visible !important; }
+  .snav .nav { height: 44px; padding: 0 8px; font-size: 14.5px; }
+  .smain { overflow: visible !important; }
+  #altview .chip { height: 38px; padding: 0 16px; border-radius: 19px; font-size: 14px; }
+  .keysgrid { grid-template-columns: 1fr 1fr; }
+  .grid2 { grid-template-columns: 1fr; }
+  .kv { grid-template-columns: 96px 1fr; }
+}
