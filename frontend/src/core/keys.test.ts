@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SHORTCUTS, actionForKey, handleKey, registerActions, setPrefix, type KeyLike } from "./keys";
+import { SHORTCUTS, actionForKey, directAction, handleKey, registerActions, setPrefix, type KeyLike } from "./keys";
 import { INITIAL_UI, useStore } from "./store";
 
 const ev = (key: string, extra: Partial<KeyLike> = {}): KeyLike => ({ type: "keydown", key, preventDefault: vi.fn(), ...extra });
@@ -66,5 +66,48 @@ describe("handleKey", () => {
     expect(handleKey(ev("b", { ctrlKey: true }))).toBe(true);
     expect(handleKey(ev("a", { ctrlKey: true }))).toBe(false);
     expect(prefixOn()).toBe(true);
+  });
+});
+
+describe("VS Code style chords", () => {
+  const act = (key: string, extra: Partial<KeyLike> = {}) => directAction(ev(key, { ctrlKey: true, ...extra }))?.action;
+  it("maps the common chords", () => {
+    expect(act("p", { shiftKey: true })).toBe("palette");
+    expect(act("P", { shiftKey: true })).toBe("palette");
+    expect(act("p")).toBe("search");
+    expect(act("b")).toBe("toggleSidebar");
+    expect(act("w")).toBe("closeCurrentTab");
+    expect(act("W", { shiftKey: true })).toBe("closePane");
+    expect(act("\\")).toBe("splitRight");
+    expect(act("|", { shiftKey: true })).toBe("splitDown");
+    expect(act("~", { shiftKey: true })).toBe("newTab");
+    expect(act("Tab")).toBe("nextTab");
+    expect(act("Tab", { shiftKey: true })).toBe("prevTab");
+    expect(act("3")).toBe("gotoTab");
+    expect(act("ArrowLeft", { altKey: true })).toBe("focusLeft");
+    expect(directAction(ev("F1"))?.action).toBe("palette");
+  });
+  it("leaves plain keys and unknown chords to the agent", () => {
+    expect(directAction(ev("p"))).toBeUndefined();
+    expect(act("c")).toBeUndefined();
+    expect(act("z")).toBeUndefined();
+  });
+  it("the prefix key still arms the prefix (Ctrl+A) and Ctrl+B now toggles the sidebar", () => {
+    setPrefix("C-a");
+    const toggle = vi.fn();
+    registerActions({ toggleSidebar: toggle });
+    expect(handleKey(ev("a", { ctrlKey: true }), "p1")).toBe(false);
+    expect(prefixOn()).toBe(true);
+    useStore.setState({ ui: { ...INITIAL_UI } });
+    expect(handleKey(ev("b", { ctrlKey: true }), "p1")).toBe(false);
+    expect(toggle).toHaveBeenCalled();
+  });
+  it("with the old Ctrl+B prefix configured, Ctrl+B stays the prefix", () => {
+    setPrefix("C-b");
+    const toggle = vi.fn();
+    registerActions({ toggleSidebar: toggle });
+    handleKey(ev("b", { ctrlKey: true }), "p1");
+    expect(prefixOn()).toBe(true);
+    expect(toggle).not.toHaveBeenCalled();
   });
 });

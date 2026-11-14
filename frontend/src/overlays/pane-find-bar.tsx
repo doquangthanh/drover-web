@@ -1,4 +1,4 @@
-// Find-in-scrollback bar shown under a pane header (Ctrl+B [). Phase 8 mounts it and supplies the terminal-registry hooks.
+// Find-in-scrollback bar shown under a pane header (Ctrl+A [). Phase 8 mounts it and supplies the terminal-registry hooks.
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "../ui/atoms/icon";
 

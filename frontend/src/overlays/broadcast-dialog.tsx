@@ -1,4 +1,4 @@
-// "Send to several agents" (Ctrl+B B).
+// "Send to several agents" (Ctrl+A B).
 import { useState } from "react";
 import { conn } from "../core/connection";
 import { useStore } from "../core/store";

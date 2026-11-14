@@ -29,8 +29,8 @@ export function StatusBar() {
       <BranchChip space={space} onClick={() => allActions.show("changes")} />
       {pane ? <span className="trunc">{shortPath(pane.cwd)}</span> : null}
       <span className="grow" />
-      {prefix ? <span className="prefix-on">Ctrl+B — waiting for a key</span>
-        : <span><span className="k">Ctrl B</span> <span className="k">?</span> shortcuts</span>}
+      {prefix ? <span className="prefix-on">Ctrl+A — waiting for a key</span>
+        : <span><span className="k">Ctrl A</span> <span className="k">?</span> shortcuts</span>}
     </HostPortal>
   );
 }

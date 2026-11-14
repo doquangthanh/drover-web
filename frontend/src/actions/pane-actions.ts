@@ -4,15 +4,19 @@ import { confirmBox, promptText } from "../overlays/modal-dialogs";
 import {
   byMachine, focusedId, layoutPaneIds, pane, rpc, rpcQuiet, setUi, state, tab, ui, withMachine, type PaneOpts,
 } from "./action-helpers";
+import { renameInPlace, useRenaming } from "../core/inline-rename-store";
 import { hooks } from "./feature-hooks";
+
+let previousPane: string | null = null; // for "last pane" (Ctrl+A ;)
 
 export function focusPane(paneId: string, fromClick = false): void {
   const p = pane(paneId);
   if (!p) return;
+  if (ui().focusedPane && ui().focusedPane !== paneId) previousPane = ui().focusedPane;
   // One batched update; the workspace/topbar react to it, no manual "force render" needed.
   setUi({ focusedPane: paneId, tabId: p.tab_id ?? null, spaceId: p.space_id ?? null, mobilePane: paneId, view: "workspace" });
   conn.rpc("pane.focus", { pane: paneId }).catch(() => {});
-  if (!fromClick) setTimeout(() => hooks.focusTerminal(paneId), 30);
+  if (!fromClick) setTimeout(() => { if (!useRenaming.getState().key) hooks.focusTerminal(paneId); }, 30);
 }
 
 export function mobileBack(): void { setUi({ mobilePane: null }); }
@@ -50,6 +54,7 @@ async function closePane(opts?: PaneOpts): Promise<void> {
 async function rename(opts?: PaneOpts): Promise<void> {
   const p = pane(focusedId(opts));
   if (!p) return;
+  if (renameInPlace(`pane:${p.id}`, "#sidebar")) return; // the sidebar row turns into a text field
   const name = await promptText("Rename agent", p.name);
   if (name) rpcQuiet("pane.rename", { pane: p.id, name });
 }
@@ -84,12 +89,14 @@ function discard(ids?: string[]): void {
 }
 
 export const paneActions = {
+  setPaneName: (id: string, name: string) => { rpcQuiet("pane.rename", { pane: id, name }); },
   focusPane, mobileBack, sendRaw, closePane, rename, zoom, find, restart, resume, discard,
   splitRight: (opts?: PaneOpts) => split("row", opts),
   splitDown: (opts?: PaneOpts) => split("col", opts),
   sendEsc: (opts?: PaneOpts) => { const id = focusedId(opts); if (id) sendRaw(id, "\x1b"); },
   nextBlocked: () => cycle(["blocked"]),
   nextDone: () => cycle(["done"]),
+  lastPane: () => { if (previousPane && pane(previousPane)) focusPane(previousPane); },
   focusPrev: () => step(-1),
   focusNext: () => step(1),
   testNotify: () => { rpcQuiet("notify.test"); },

@@ -1,4 +1,4 @@
-// "Jump to a terminal" (Ctrl+B /): agents, spaces and scrollback matches across all machines, with a live preview.
+// "Jump to a terminal" (Ctrl+A /): agents, spaces and scrollback matches across all machines, with a live preview.
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import { getActions } from "../core/keys";
 import { conn } from "../core/connection";

@@ -16,7 +16,8 @@ export const PaneHeader = memo(function PaneHeader({ paneId }: { paneId: string 
   if (!pane) return null;
   const where = shortPath(pane.cwd) + (pane.machine && pane.machine !== "local" ? ` · ${pane.machine}` : "") + (zoomed ? ` · pane ${pane.id}` : "");
   return (
-    <div className="phead">
+    <div className="phead" onDoubleClick={(e) => { if (!(e.target as Element).closest("button")) allActions.zoom({ paneId }); }}
+      onAuxClick={(e) => { if (e.button === 1) allActions.closePane({ paneId }); }}>
       <KindIcon kind={pane.kind} />
       <span className="pn">{pane.name}</span>
       <span className="cwd trunc" title={pane.cwd}>{where}</span>

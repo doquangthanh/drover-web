@@ -22,6 +22,23 @@ export function withRatioAt(node: Node, path: string, ratio: number): Node {
   return { ...node, [side]: withRatioAt(node[side], path.slice(1), ratio) };
 }
 
+/** Copy with the nearest split around `paneId` that runs along `axis` ("row" = left/right) moved by `delta`; same tree if none. */
+export function nudgeRatio(node: Node, paneId: string, axis: SplitDir, delta: number): Node {
+  if (isLeaf(node)) return node;
+  const inA = containsPane(node.a, paneId);
+  if (!inA && !containsPane(node.b, paneId)) return node;
+  const child = inA ? node.a : node.b;
+  const deeper = nudgeRatio(child, paneId, axis, delta);
+  if (deeper !== child) return inA ? { ...node, a: deeper } : { ...node, b: deeper };
+  return node.split === axis ? { ...node, ratio: clampRatio(node.ratio + delta) } : node;
+}
+
+/** Copy with two panes exchanging places. */
+export function swapLeaves(node: Node, a: string, b: string): Node {
+  if (isLeaf(node)) return node.pane === a ? { pane: b } : node.pane === b ? { pane: a } : node;
+  return { ...node, a: swapLeaves(node.a, a, b), b: swapLeaves(node.b, a, b) };
+}
+
 /** Ratio of the pointer inside a box along the split axis. */
 export function dragRatio(dir: SplitDir, rect: { left: number; top: number; width: number; height: number }, x: number, y: number): number {
   return clampRatio(dir === "row" ? (x - rect.left) / rect.width : (y - rect.top) / rect.height);

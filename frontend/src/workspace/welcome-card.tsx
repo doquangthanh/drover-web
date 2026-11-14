@@ -10,7 +10,7 @@ export function WelcomeCard() {
           <button className="btn pri" onClick={() => allActions.newAgent()}>New agent</button>
           <button className="btn" onClick={() => allActions.newSpace(null)}>Open folder</button>
         </div>
-        <p className="meta">Shortcuts: Ctrl+B then ? for the full list.</p>
+        <p className="meta">Shortcuts: Ctrl+A then ? for the full list.</p>
       </div>
     </div>
   );

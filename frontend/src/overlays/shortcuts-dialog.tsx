@@ -1,5 +1,5 @@
-// Keyboard shortcuts sheet (Ctrl+B ?).
-import { SHORTCUTS } from "../core/keys";
+// Keyboard shortcuts sheet (Ctrl+A ?).
+import { DIRECT_SHORTCUTS, SHORTCUTS, getPrefixKey } from "../core/keys";
 import { openModal } from "./modal-store";
 import { shortcutChips } from "./shortcuts-logic";
 
@@ -10,9 +10,18 @@ function Shortcuts() {
     <>
       <div className="mhead">
         <h2>Keyboard shortcuts</h2>
-        <span className="meta">Press <K t="Ctrl" /> <K t="B" /> first, then the key. Everything else goes to the agent.</span>
+        <span className="meta">VS Code style chords work anywhere. For the rest press <K t="Ctrl" /> <K t={getPrefixKey().toUpperCase()} /> first, then the key.</span>
       </div>
       <div className="keysgrid">
+        <div className="kcol">
+          <div className="kh">VS Code style</div>
+          {DIRECT_SHORTCUTS.map(([chord, label]) => (
+            <div className="kr" key={chord + label}>
+              <span>{label}</span>
+              <span className="keys"><K t={chord} /></span>
+            </div>
+          ))}
+        </div>
         {SHORTCUTS.map(([group, items]) => (
           <div className="kcol" key={group}>
             <div className="kh">{group}</div>
@@ -29,7 +38,7 @@ function Shortcuts() {
         ))}
       </div>
       <div className="kfoot">
-        Change any of these in <span className="mono">keys.toml</span>. <K t="Ctrl" /> <K t="B" /> twice sends a real Ctrl+B to the agent.
+        Change any of these in <span className="mono">keys.toml</span>. <K t="Ctrl" /> <K t={getPrefixKey().toUpperCase()} /> twice sends a real Ctrl+{getPrefixKey().toUpperCase()} to the agent.
       </div>
     </>
   );

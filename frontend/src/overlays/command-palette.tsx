@@ -1,4 +1,4 @@
-// Command palette (Ctrl+B :): fuzzy list of every action.
+// Command palette (Ctrl+A :): fuzzy list of every action.
 import { Fragment, useMemo, useState } from "react";
 import { getActions } from "../core/keys";
 import { ICON_SETS, setIconSet } from "../core/file-icons";

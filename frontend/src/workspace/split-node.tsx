@@ -50,10 +50,15 @@ function SplitBox({ node, path, tabId, flex }: NodeProps & { node: Split }) {
     gutter.addEventListener("pointercancel", up, { once: true });
   };
 
+  const resetRatio = () => {
+    const layout = useStore.getState().tabById.get(tabId)?.layout as Node | null | undefined;
+    if (layout) conn.rpc("tab.set_layout", { tab: tabId, layout: withRatioAt(layout, path, 0.5) }).catch(() => {});
+  };
+
   return (
     <div ref={box} className={`split ${node.split}` + (hasFocus ? " has-focus" : "")} style={flexStyle(flex)}>
       <LayoutNode node={node.a} path={path + "a"} tabId={tabId} flex={node.ratio} />
-      <div className="gutter" role="separator" onPointerDown={startDrag} />
+      <div className="gutter" role="separator" onPointerDown={startDrag} onDoubleClick={resetRatio} title="Drag to resize · double-click to even out" />
       <LayoutNode node={node.b} path={path + "b"} tabId={tabId} flex={1 - node.ratio} />
     </div>
   );

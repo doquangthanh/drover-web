@@ -84,7 +84,7 @@
 @media (pointer: coarse) {
   .status { height: 34px; }
   .status .gb { height: auto; min-height: 30px; padding: 0 8px; }
-  .status > span:last-child:not(.prefix-on) { display: none; } /* "Ctrl B ?" hint means nothing without a keyboard */
+  .status > span:last-child:not(.prefix-on) { display: none; } /* "Ctrl A ?" hint means nothing without a keyboard */
 }
 
 /* --- 6. terminal on touch: the finger scrolls the scrollback (js/terminal-touch-scroll.js), the browser must not pan --- */

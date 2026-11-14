@@ -7,6 +7,7 @@ import { HostPortal } from "./shell/host-portal";
 import { MobileNav } from "./shell/mobile-nav";
 import { Sidebar } from "./shell/sidebar";
 import { StatusBar } from "./shell/status-bar";
+import { ContextMenu } from "./shell/context-menu";
 import { Toasts } from "./shell/toasts";
 import { Topbar } from "./shell/topbar";
 import { viewFor } from "./views/view-registry";
@@ -44,6 +45,7 @@ export function App() {
       <Toasts />
       <ConnBanner />
       <ModalHost />
+      <ContextMenu />
     </>
   );
 }
