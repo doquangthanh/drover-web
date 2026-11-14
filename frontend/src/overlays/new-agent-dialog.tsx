@@ -10,7 +10,7 @@ import { AgentChips, FolderField, PlacementRadios, WorktreeBox, type GitInfo } f
 import { buildCommand, cliPreview, createParams, type AgentKind, type Placement } from "./new-agent-logic";
 import { closeModal, openModal } from "./modal-store";
 
-export interface NewAgentOpts { kind?: AgentKind; machine?: string | null; cwd?: string; worktree?: boolean; place?: Placement }
+export interface NewAgentOpts { kind?: AgentKind; machine?: string | null; cwd?: string; worktree?: boolean; place?: Placement; chat?: boolean }
 
 function NewAgent({ opts }: { opts: NewAgentOpts }) {
   const initial = useRef(useStore.getState()).current; // dialog defaults come from the state at open time
@@ -28,6 +28,7 @@ function NewAgent({ opts }: { opts: NewAgentOpts }) {
   const [prompt, setPrompt] = useState("");
   const [worktree, setWorktree] = useState(!!opts.worktree);
   const [place, setPlace] = useState<Placement>(opts.place || "tab");
+  const [asChat, setAsChat] = useState(!!opts.chat);
   const [info, setInfo] = useState<GitInfo | null>(null);
   const [note, setNote] = useState({ text: "", ok: false });
   const gitSeq = useRef(0);
@@ -51,7 +52,17 @@ function NewAgent({ opts }: { opts: NewAgentOpts }) {
   const command = buildCommand(kind, custom, args);
   const recent = [...new Set(spaces.map((s) => s.cwd).filter((c): c is string => !!c))].slice(0, 5);
 
+  const chatPossible = kind === "claude" && !machine; // chats run Claude on this computer
+  const chatMode = asChat && chatPossible;
+
   const start = async () => {
+    if (chatMode) {
+      try {
+        await getActions().newChat?.({ cwd: cwd.trim(), name, spaceId: space && space.cwd === cwd.trim() ? space.id : null, prompt });
+        closeModal();
+      } catch (e) { errorToast(e); }
+      return;
+    }
     const params = createParams({ command, cwd, name, kind, machine, worktree, place, focused });
     try {
       const pane = await conn.rpc("pane.create", params);
@@ -75,6 +86,12 @@ function NewAgent({ opts }: { opts: NewAgentOpts }) {
         <div>
           <span className="lab">Agent</span>
           <AgentChips kind={kind} onKind={setKind} />
+          {chatPossible ? (
+            <div className="row" style={{ gap: 14, marginTop: 8 }} role="radiogroup" aria-label="Show as">
+              <label className="row" style={{ gap: 6 }}><input type="radio" name="na-as" checked={!asChat} onChange={() => setAsChat(false)} /> Terminal</label>
+              <label className="row" style={{ gap: 6 }}><input type="radio" name="na-as" checked={asChat} onChange={() => setAsChat(true)} /> Chat <span className="meta">messages, pictures, tool cards</span></label>
+            </div>
+          ) : null}
           <input className="in mono" placeholder="command to run" aria-label="Custom command" hidden={kind !== "custom"}
             value={custom} onChange={(e) => setCustom(e.target.value)} />
         </div>
@@ -89,17 +106,19 @@ function NewAgent({ opts }: { opts: NewAgentOpts }) {
         </div>
         <FolderField cwd={cwd} recent={recent} note={note} onCwd={setCwd} onCommit={commit}
           onChoose={async () => { const p = await chooseFolder(machine, cwd.trim()); if (p) commit(p); }} />
-        <WorktreeBox checked={worktree} disabled={!!info && !info.is_repo} info={info} name={name} kind={kind} onChange={setWorktree} />
-        <PlacementRadios place={place} onPlace={setPlace} />
+        {chatMode ? null : <WorktreeBox checked={worktree} disabled={!!info && !info.is_repo} info={info} name={name} kind={kind} onChange={setWorktree} />}
+        {chatMode ? null : <PlacementRadios place={place} onPlace={setPlace} />}
         <div><label className="lab" htmlFor="na-p">First prompt</label>
           <textarea className="in" id="na-p" rows={3} placeholder="Sent once the agent is ready (optional)" value={prompt} onChange={(e) => setPrompt(e.target.value)} /></div>
-        <div><label className="lab" htmlFor="na-args">Arguments</label>
-          <input className="in mono" id="na-args" placeholder="extra arguments (optional)" value={args} onChange={(e) => setArgs(e.target.value)} /></div>
+        {chatMode ? null : (
+          <div><label className="lab" htmlFor="na-args">Arguments</label>
+            <input className="in mono" id="na-args" placeholder="extra arguments (optional)" value={args} onChange={(e) => setArgs(e.target.value)} /></div>
+        )}
       </div>
       <div className="mfoot">
-        <span className="mono meta grow trunc">{cliPreview(machine, worktree, command)}</span>
+        <span className="mono meta grow trunc">{chatMode ? "Opens as a chat" : cliPreview(machine, worktree, command)}</span>
         <button className="btn" onClick={() => closeModal()}>Cancel</button>
-        <button className="btn pri" onClick={start}>Start agent</button>
+        <button className="btn pri" onClick={start}>{chatMode ? "Start chat" : "Start agent"}</button>
       </div>
     </>
   );

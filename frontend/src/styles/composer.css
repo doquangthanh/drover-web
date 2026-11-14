@@ -1,0 +1,29 @@
+﻿/* Message box of a chat (chat/chat-composer.tsx) */
+.composer { flex: none; margin: 0 12px 12px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; border-radius: 14px;
+  background: var(--raised); border: 1px solid var(--border); }
+.composer:focus-within { border-color: var(--accent); }
+.composer.over { border-style: dashed; border-color: var(--accent); background: rgb(var(--accent-rgb) / .1); }
+.composer textarea { width: 100%; min-height: 26px; resize: none; border: 0; outline: none; background: none; color: var(--fg); font: inherit; font-size: 14px;
+  line-height: 22px; max-height: 180px; padding: 2px 2px; box-sizing: border-box; }
+.composer textarea::placeholder { color: var(--dim); }
+.cp-files { display: flex; gap: 8px; flex-wrap: wrap; }
+.cp-thumb { position: relative; width: 84px; height: 60px; border-radius: 9px; overflow: hidden; border: 1px solid var(--border); background: var(--pane); }
+.cp-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cp-thumb button { position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; border: 0; border-radius: 50%;
+  background: rgb(0 0 0 / .65); color: #fff; font-size: 13px; line-height: 1; cursor: pointer; }
+.cp-thumb.bad { border-color: var(--error); }
+.cp-err { position: absolute; left: 6px; bottom: 4px; font-size: 11px; color: var(--error); }
+.cp-bar { position: absolute; left: 6px; right: 6px; bottom: 6px; height: 3px; border-radius: 2px; background: rgb(0 0 0 / .55); overflow: hidden; }
+.cp-bar::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 40%; background: var(--accent); animation: cp-load 1s ease-in-out infinite; }
+@keyframes cp-load { 0% { left: -40%; } 100% { left: 100%; } }
+.cp-bar-row { display: flex; align-items: center; gap: 6px; }
+.cp-hint { color: var(--dim); font-size: 12px; margin-left: 4px; }
+.cp-tool { height: 30px; min-width: 30px; padding: 0 6px; border: 0; border-radius: 8px; background: none; color: var(--muted);
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.cp-tool:hover { background: var(--hover); color: var(--fg); }
+.cp-tool.txt { font-size: 12px; padding: 0 10px; }
+.cp-send { height: 30px; width: 38px; border: 0; border-radius: 9px; background: var(--accent); color: #0e1016; display: inline-flex;
+  align-items: center; justify-content: center; cursor: pointer; }
+.cp-send:disabled { background: var(--hover); color: var(--dim); cursor: default; }
+@media (pointer: coarse) { .cp-tool, .cp-send { height: 40px; min-width: 40px; } .composer textarea { font-size: 16px; } }
+.cp-hint.bad { color: var(--error); }

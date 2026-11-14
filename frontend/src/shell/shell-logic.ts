@@ -34,6 +34,6 @@ export const machineDot = (status: string | undefined): "ok" | "bad" | "blocked"
 /** Top bar titles of the full-page views: [title, hint]. `null` title means "current space name". */
 export const VIEW_TITLES: Record<string, [string | null, string?]> = {
   inbox: ["Inbox"], machines: ["Machines", "reached over SSH · daemons never listen on the network"],
-  settings: ["Settings"], tree: ["Agent tree", "who started whom · Ctrl B o"], server: ["herd-server"],
-  files: ["Files"], changes: [null, "worktrees"],
+  settings: ["Settings"], tree: ["Agent tree", "who started whom · Ctrl A o"], server: ["herd-server"],
+  files: ["Files"], changes: [null, "worktrees"], chat: ["Chat"],
 };

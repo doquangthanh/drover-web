@@ -13,6 +13,7 @@ export interface UiState {
   findPane: string | null;
   focusedPane: string | null;
   mobilePane: string | null;
+  chatId: string | null;
 }
 
 export interface StoreState extends Derived {
@@ -26,7 +27,7 @@ export interface StoreState extends Derived {
 }
 
 export const INITIAL_UI: UiState = {
-  view: "workspace", tabId: null, spaceId: null, sidebar: true, prefix: false, findPane: null, focusedPane: null, mobilePane: null,
+  view: "workspace", tabId: null, spaceId: null, sidebar: true, prefix: false, findPane: null, focusedPane: null, mobilePane: null, chatId: null,
 };
 
 function withSelection(raw: RawState, prev: StoreState) {

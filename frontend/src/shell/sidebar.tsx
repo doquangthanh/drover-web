@@ -3,6 +3,7 @@ import { Fragment, useEffect, useMemo } from "react";
 import { allActions } from "../actions/build-actions";
 import { useStore } from "../core/store";
 import { Icon, type IconName } from "../ui/atoms/icon";
+import { ChatRows } from "../chat/chat-sidebar";
 import { SidebarAgentRow } from "./sidebar-agent-row";
 import { SidebarSpaceRow } from "./sidebar-space-row";
 import { machineDot, sortedPanesOf } from "./shell-logic";
@@ -35,7 +36,7 @@ function SpacesSection() {
       <div className="slist">
         <MachineHeader label="This computer" icon="monitor" status="local" onNew={() => void allActions.newSpace(null)} />
         {(local || []).map((s) => <SidebarSpaceRow key={s.id} space={s} on={selected === s.id} />)}
-        {!local?.length ? <div className="empty-hint">Open a folder to start: press + or Ctrl+B S.</div> : null}
+        {!local?.length ? <div className="empty-hint">Open a folder to start: press + or Ctrl+A S.</div> : null}
         {machines.map((m) => (
           <Fragment key={m.alias}>
             <MachineHeader label={m.status === "connected" ? m.alias : `${m.alias} · ${m.status}`} icon="server"
@@ -66,7 +67,8 @@ function AgentsSection() {
             {list.map((p) => <SidebarAgentRow key={p.id} pane={p} on={focused === p.id} />)}
           </Fragment>
         ))}
-        {!panes.length ? <div className="empty-hint">No agents yet. Ctrl+B C starts one.</div> : null}
+        <ChatRows />
+        {!panes.length ? <div className="empty-hint">No agents yet. Ctrl+A C starts one.</div> : null}
       </div>
     </div>
   );
@@ -94,9 +96,9 @@ export function Sidebar() {
   return (
     <HostPortal id="sidebar">
       <div className="brand">
-        <span className="logo" role="img" aria-label="herd" /><span className="name">herd</span>
-        <button className="ibtn" aria-label="Jump to a terminal" title="Jump to a terminal (Ctrl+B /)" onClick={() => allActions.search()}><Icon name="search" /></button>
-        <button className="ibtn" aria-label="Hide sidebar" title="Hide sidebar (Ctrl+B b)" onClick={() => allActions.toggleSidebar()}><Icon name="sidebar" /></button>
+        <span className="logo" role="img" aria-label="Drover" /><span className="name">Drover</span>
+        <button className="ibtn" aria-label="Jump to a terminal" title="Jump to a terminal (Ctrl+A /)" onClick={() => allActions.search()}><Icon name="search" /></button>
+        <button className="ibtn" aria-label="Hide sidebar" title="Hide sidebar (Ctrl+A b)" onClick={() => allActions.toggleSidebar()}><Icon name="sidebar" /></button>
       </div>
       <SpacesSection />
       <AgentsSection />

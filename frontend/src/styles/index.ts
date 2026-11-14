@@ -5,6 +5,8 @@ import "./base.css";
 import "./themes.css";
 import "./sidebar.css";
 import "./workspace.css";
+import "./composer.css";
+import "./chat.css";
 import "./overlays.css";
 import "./views.css";
 import "./tablet-touch-wide.css";
