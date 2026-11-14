@@ -3,6 +3,7 @@
 import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { Terminal } from "@xterm/xterm";
+import { copyText } from "../core/clipboard";
 import { conn } from "../core/connection";
 import { handleKey } from "../core/keys";
 import { useStore } from "../core/store";
@@ -34,7 +35,17 @@ export function getTerminal(paneId: string): TermEntry {
   // xterm answers the shell's "who are you" query (Device Attributes) and ConPTY hands that answer to PowerShell as
   // typed text ("[?1;2c" on the prompt). The shell never needs it, so it is dropped.
   term.onData((data) => { if (!/^\x1b\[[?>][\d;]*c$/.test(data)) conn.input(paneId, data); });
-  term.attachCustomKeyEventHandler((ev) => handleKey(ev, paneId));
+  term.attachCustomKeyEventHandler((ev) => {
+    // Ctrl+C / Ctrl+Shift+C copies while text is selected; with nothing selected Ctrl+C still interrupts the agent.
+    if (ev.type === "keydown" && ev.ctrlKey && !ev.altKey && ev.key.toLowerCase() === "c" && term.hasSelection()) {
+      copySelection(paneId);
+      term.clearSelection();
+      return false;
+    }
+    return handleKey(ev, paneId);
+  });
+  // Copy as soon as the mouse is released over a selection (Shift+drag selects even when the agent captures the mouse).
+  el.addEventListener("mouseup", () => { if (term.hasSelection()) copySelection(paneId); });
   conn.attach(paneId, (data, isReplay) => {
     if (isReplay) term.reset();
     term.write(data);
@@ -106,6 +117,6 @@ export function scrollbackDepth(paneId: string): string {
 
 export function copySelection(paneId: string): boolean {
   const text = terms.get(paneId)?.term.getSelection();
-  if (text) navigator.clipboard?.writeText(text).catch(() => {});
+  if (text) void copyText(text);
   return !!text;
 }

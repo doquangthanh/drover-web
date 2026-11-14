@@ -1,5 +1,6 @@
 ﻿// One transcript entry. The kind decides the look: bubble, prose, thinking, tool card, permission card, result line, notice.
 import { memo, useState } from "react";
+import { CopyButton } from "./chat-copy-button";
 import { formatDuration } from "./chat-logic";
 import { Markdown } from "./chat-markdown";
 import { PermissionCard } from "./chat-permission-card";
@@ -25,9 +26,16 @@ export const ChatItemView = memo(function ChatItemView({ chatId, item }: { chatI
             <div className="cmsg-images">{item.images.map((im, i) => <img key={i} alt="attached" src={`data:${im.media_type};base64,${im.data}`} />)}</div>
           ) : null}
           {item.text ? <div className="cmsg-text">{item.text}</div> : null}
+          {item.text ? <CopyButton className="cmsg-copy" text={item.text} /> : null}
         </div>
       );
-    case "text": return <div className={"cmsg assistant" + (item.live ? " live" : "")}><Markdown text={item.text} /></div>;
+    case "text":
+      return (
+        <div className={"cmsg assistant" + (item.live ? " live" : "")}>
+          <Markdown text={item.text} />
+          {item.live ? null : <CopyButton className="cmsg-copy" text={item.text} />}
+        </div>
+      );
     case "thinking": return item.text ? <Thinking text={item.text} live={item.live} /> : null;
     case "tool": return <ToolCard item={item} />;
     case "permission": return <PermissionCard chatId={chatId} item={item} />;

@@ -1,4 +1,5 @@
-import { memo, useState } from "react";
+import { memo } from "react";
+import { CopyButton } from "./chat-copy-button";
 import { parseBlocks, type Inline } from "./chat-markdown-logic";
 
 function InlineView({ parts }: { parts: Inline[] }) {
@@ -18,13 +19,9 @@ function InlineView({ parts }: { parts: Inline[] }) {
 }
 
 function CodeBlock({ lang, text }: { lang: string; text: string }) {
-  const [copied, setCopied] = useState(false);
-  const copy = () => {
-    navigator.clipboard?.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1200); }).catch(() => {});
-  };
   return (
     <div className="md-pre">
-      <div className="md-pre-head"><span>{lang || "text"}</span><button onClick={copy}>{copied ? "Copied" : "Copy"}</button></div>
+      <div className="md-pre-head"><span>{lang || "text"}</span><CopyButton text={text} /></div>
       <pre>{text}</pre>
     </div>
   );
