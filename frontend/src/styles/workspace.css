@@ -12,6 +12,10 @@
   background: rgb(var(--accent-rgb) / .14); color: var(--accent); font-size: 11.5px; margin-right: 6px; }
 .seg-b { display: flex; gap: 2px; margin-left: 12px; }
 .tabs .title { font-weight: 600; font-size: 14px; padding: 0 4px; }
+/* one-tab workspace: name + folder instead of a tab strip (shell/topbar-tabs.tsx) */
+.ws-crumb { display: flex; align-items: baseline; gap: 8px; min-width: 0; padding-left: 2px; }
+.ws-crumb .title { font-size: 13.5px; white-space: nowrap; }
+.ws-path { font-family: var(--mono); font-size: 11.5px; color: var(--dim); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pb { height: 26px; display: inline-flex; align-items: center; gap: 5px; padding: 0 8px; border-radius: 6px;
   font-size: 12px; color: var(--muted); background: none; border: 1px solid transparent; flex: none; }
 .pb:hover { background: var(--hover); color: var(--fg); }

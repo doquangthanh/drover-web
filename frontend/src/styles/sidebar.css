@@ -26,6 +26,19 @@
 .srow.idle .nm { color: var(--muted); }
 .srow > .trunc { min-width: 0; flex: 1 1 0; }
 .srow .git { flex: 0 0 auto; margin-left: auto; white-space: nowrap; }
+/* workspace tree (shell/sidebar.tsx): workspace row, its agents indented under it */
+.wsgroup + .wsgroup { margin-top: 2px; }
+.wsgroup > .srow:not(.wsrow) { padding-left: 32px; height: 28px; }
+.wsrow > .trunc { font-weight: 500; }
+.wschev { width: 14px; height: 18px; margin-right: -4px; flex: none; display: inline-flex; align-items: center; justify-content: center;
+  color: var(--dim); border-radius: 4px; cursor: pointer; }
+.wschev[role="button"]:hover { color: var(--fg); background: var(--hover); }
+.wschev svg.i { width: 12px; height: 12px; transition: transform .12s; }
+.wschev.open svg.i { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) { .wschev svg.i { transition: none; } }
+.mchip { flex: none; margin-left: auto; display: inline-flex; align-items: center; gap: 4px; height: 18px; padding: 0 6px; border-radius: 5px;
+  background: var(--hover); color: var(--muted); font-size: 10.5px; font-family: var(--mono); max-width: 96px; overflow: hidden; white-space: nowrap; }
+.mchip .dot { width: 5px; height: 5px; }
 .grp { height: 24px; display: flex; align-items: center; padding: 0 8px; font-size: 11px; color: var(--dim); }
 .sfoot { flex: none; border-top: 1px solid var(--border); padding: 4px 8px 8px; }
 .sfoot .srow { color: var(--muted); height: 28px; }

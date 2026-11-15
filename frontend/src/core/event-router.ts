@@ -5,6 +5,7 @@ import type { Chat, ChatOp } from "../chat/chat-types";
 import { conn } from "./connection";
 import { setServerIconSet } from "./file-icons";
 import { maybeShowRestore } from "../overlays/restore-dialog";
+import { takeUnexpectedSpaces } from "./new-workspace-notice";
 import { getActions, setPrefix } from "./keys";
 import type { Pane, RawState, StatusEvent } from "./protocol-types";
 import { useStore } from "./store";
@@ -26,6 +27,10 @@ export function routeEvent(name: string, data: unknown): void {
     const { ui, tabById } = useStore.getState();
     if (!ui.focusedPane) store.setUi({ focusedPane: (ui.tabId && tabById.get(ui.tabId)?.focused) || null });
     maybeShowRestore();
+    for (const s of takeUnexpectedSpaces(raw)) {
+      toast(`New workspace: ${s.name || s.cwd || s.id}`, `Opened for an agent in ${s.cwd || "a new folder"}${s.machine && s.machine !== "local" ? ` on ${s.machine}` : ""}.`,
+        () => void getActions().renameSpace?.(s.id), null, { tone: "info", action: "Rename" });
+    }
   } else if (name === "chats") {
     useChats.getState().setChats(data as Chat[]);
   } else if (name === "chat") {

@@ -3,6 +3,7 @@ import { confirmBox, promptText } from "../overlays/modal-dialogs";
 import { panesOf, rpc, rpcQuiet, setUi, space, state, tab, tabsOf, ui, withMachine } from "./action-helpers";
 import { renameInPlace, useRenaming } from "../core/inline-rename-store";
 import { hooks } from "./feature-hooks";
+import { expectNewWorkspace } from "../core/new-workspace-notice";
 import { focusPane } from "./pane-actions";
 
 function selectSpace(spaceId: string): void {
@@ -20,6 +21,7 @@ function selectTab(tabId: string): void {
 async function newSpace(machine?: string | null): Promise<void> {
   const path = await hooks.chooseFolder(machine || null, "");
   if (!path) return;
+  expectNewWorkspace();
   const r = await rpcQuiet("space.create", machine ? { cwd: path, machine } : { cwd: path });
   if (r) focusPane(r.pane.id);
 }
@@ -46,7 +48,7 @@ async function renameSpace(spaceId: string): Promise<void> {
   const s = space(spaceId);
   if (!s) return;
   if (renameInPlace(`space:${s.id}`, "#sidebar")) return;
-  const name = await promptText("Rename space", s.name);
+  const name = await promptText("Rename workspace", s.name);
   if (name) rpcQuiet("space.rename", withMachine({ space: s.id, name }, s));
 }
 

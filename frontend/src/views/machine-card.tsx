@@ -15,7 +15,7 @@ export function LocalCard({ spaces, agents }: { spaces: number; agents: number }
   return (
     <div className="mc">
       <div className="top"><Icon name="monitor" /><b className="grow">This computer</b><span className="pill ok">Connected</span></div>
-      <div className="st"><span>{`${spaces} spaces`}</span><span>{`${agents} agents`}</span></div>
+      <div className="st"><span>{`${spaces} workspaces`}</span><span>{`${agents} agents`}</span></div>
     </div>
   );
 }

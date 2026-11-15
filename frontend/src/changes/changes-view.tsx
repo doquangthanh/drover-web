@@ -34,6 +34,6 @@ function ChangesBody({ space }: { space: Space }) {
 
 export default function ChangesView() {
   const space = useStore((s) => (s.ui.spaceId ? s.spaceById.get(s.ui.spaceId) : undefined));
-  if (!space) return <div className="view meta">Open a space first.</div>;
+  if (!space) return <div className="view meta">Open a workspace first.</div>;
   return <ChangesBody key={space.id} space={space} />;
 }
