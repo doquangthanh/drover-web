@@ -73,6 +73,20 @@ def title_bar_linux(window, dark: bool) -> None:
             )
 
 
+def restore_qt_text_selection() -> None:
+    """pywebview's Qt WebView swallows mouse press/move (it only needs them to drag frameless windows, which we
+    are not), so dragging over text selects nothing. Hand both events back to QWebEngineView."""
+    import contextlib
+
+    with contextlib.suppress(Exception):  # layout of pywebview internals differs between versions
+        from webview.platforms import qt
+
+        view = qt.BrowserView.WebView
+        base = view.__mro__[1]
+        view.mousePressEvent = lambda self, event: base.mousePressEvent(self, event)
+        view.mouseMoveEvent = lambda self, event: base.mouseMoveEvent(self, event)
+
+
 def style_title_bar(window, dark: bool = True) -> None:
     """The default title bar is bright white on top of a dark UI. Follows the app theme (dark=False: system default).
     Windows 10 1809+/11: dark caption, Windows 11: UI colours."""
@@ -181,6 +195,8 @@ def main() -> None:
     icon = web_static_dir() / ("app-icon.ico" if sys.platform == "win32" else "favicon.png")  # WinForms needs .ico
     bridge._window.events.shown += lambda: style_title_bar(bridge._window)
     gui = "qt" if sys.platform == "linux" else None  # Linux builds bundle Qt WebEngine; don't probe for system GTK
+    if gui == "qt":
+        restore_qt_text_selection()
     try:
         webview.start(
             follow_daemon, (bridge._window, url), gui=gui, private_mode=False, icon=str(icon) if icon.exists() else None
