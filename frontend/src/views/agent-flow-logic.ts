@@ -11,7 +11,7 @@ export const YOU = "";
 /** Short verbs for the arrow labels (the Messages tab keeps the longer MESSAGE_VERB sentences). */
 export const FLOW_VERB: Record<string, string> = {
   spawn: "started", wait: "waits for", send: "sends", keys: "keys", read: "read", done: "finished",
-  blocked: "asks", denied: "tried to answer",
+  blocked: "asks", denied: "tried to answer", exited: "exited",
 };
 
 export interface FlowEvent {
@@ -64,7 +64,7 @@ export function buildFlowEvents(messages: AgentMessage[], laneIds: string[]): Fl
   });
 }
 
-/** When each helper was active: from the row that started it to its last "done" (to the end while it still runs). */
+/** When each agent was active: from the row that started it to its last "done" / "exited" (to the end while it runs). */
 export function activityBars(messages: AgentMessage[], laneIds: string[], byId: Map<string, AgentPane>): ActivityBar[] {
   const last = messages.length - 1;
   const bars: ActivityBar[] = [];
@@ -74,10 +74,10 @@ export function activityBars(messages: AgentMessage[], laneIds: string[], byId: 
     let startRow = messages.findIndex((m) => m.kind === "spawn" && m.target === id);
     if (startRow < 0) startRow = messages.findIndex((m) => m.source === id || m.target === id);
     if (startRow < 0) return;
-    // "done" is only logged for helpers (it goes to the parent), so a finished root ends at its last mention.
+    // No "done" / "exited" row (evicted, or an older daemon): the bar ends at the agent's last mention.
     let endRow = -1, lastMention = startRow;
     messages.forEach((m, i) => {
-      if (m.kind === "done" && m.source === id) endRow = i;
+      if ((m.kind === "done" || m.kind === "exited") && m.source === id) endRow = i;
       if (m.source === id || m.target === id) lastMention = i;
     });
     const live = pane.state === "working" || pane.state === "blocked";

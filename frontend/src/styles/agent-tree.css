@@ -84,6 +84,7 @@
 .k-spawn { --c: var(--accent); --c-rgb: var(--accent-rgb); } .k-send { --c: var(--working); --c-rgb: var(--working-rgb); }
 .k-done { --c: var(--done); --c-rgb: var(--done-rgb); } .k-blocked { --c: var(--blocked); --c-rgb: var(--blocked-rgb); }
 .k-denied { --c: var(--error); --c-rgb: var(--error-rgb); --ls: dashed; }
+.k-exited { --c: var(--done); --c-rgb: var(--done-rgb); --ls: dashed; }
 .k-wait, .k-read, .k-keys { --c: var(--dim); --c-rgb: var(--ink); --ls: dashed; } .k-read { --ls: dotted; }
 
 /* board */

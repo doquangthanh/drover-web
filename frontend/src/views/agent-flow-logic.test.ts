@@ -63,6 +63,13 @@ describe("activityBars", () => {
     expect(bars.find((b) => b.lane === 1)).toMatchObject({ startRow: 0, endRow: 2, live: false });
   });
 
+  it("ends a helper that exited (no done) at its exit row", () => {
+    const exited = index([p("lead", { state: "working" }), p("a", { parent: "lead", state: "exited" })]);
+    const bars = activityBars([m("spawn", "lead", "a"), m("exited", "a", "lead"), m("send", "lead", "x")],
+      [YOU, "lead", "a"], exited);
+    expect(bars.find((b) => b.lane === 2)).toMatchObject({ startRow: 0, endRow: 1, live: false });
+  });
+
   it("falls back to the first mention when the spawn scrolled out of the log", () => {
     const bars = activityBars([m("send", "lead", "a"), m("done", "a", "lead")], lanes, index(panes));
     expect(bars.find((b) => b.lane === 2)).toMatchObject({ startRow: 0, endRow: 1 });

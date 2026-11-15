@@ -73,5 +73,5 @@ export function filterTreeRows(rows: TreeRow[], query: string): TreeRow[] {
 
 export const MESSAGE_VERB: Record<string, string> = {
   spawn: "started", wait: "is waiting for", send: "→", keys: "pressed keys in", read: "read", done: "finished for",
-  blocked: "needs an answer — asked", denied: "tried to answer for",
+  blocked: "needs an answer — asked", denied: "tried to answer for", exited: "exited, reported to",
 };
