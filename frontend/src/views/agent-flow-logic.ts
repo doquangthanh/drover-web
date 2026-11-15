@@ -11,8 +11,30 @@ export const YOU = "";
 /** Short verbs for the arrow labels (the Messages tab keeps the longer MESSAGE_VERB sentences). */
 export const FLOW_VERB: Record<string, string> = {
   spawn: "started", wait: "waits for", send: "sends", keys: "keys", read: "read", done: "finished",
-  blocked: "asks", denied: "tried to answer", exited: "exited",
+  blocked: "asks", denied: "tried to answer", exited: "exited", "sub-start": "delegates", "sub-done": "returned",
 };
+
+/** Lane kind of a Claude Code sub-agent (Task/Agent tool); its id is `<pane>/<agent>` and it has no real pane. */
+export const SUB_KIND = "sub";
+
+/** Pseudo panes for the sub-agents in `messages` (one per "sub-start"): name = agent type, parent = its pane,
+ *  done once "sub-done" arrived, otherwise working while its pane works (a closed or idle pane leaves it idle). */
+export function subAgentPanes(messages: AgentMessage[], byId: Map<string, AgentPane>): AgentPane[] {
+  const done = new Set(messages.filter((m) => m.kind === "sub-done").map((m) => m.source));
+  const subs = new Map<string, AgentPane>();
+  for (const m of messages) {
+    if (m.kind !== "sub-start" || !m.target || !m.source || subs.has(m.target)) continue;
+    const owner = byId.get(m.source)?.state;
+    const state = done.has(m.target) ? "done" : owner === "working" || owner === "blocked" ? "working" : "idle";
+    subs.set(m.target, { id: m.target, name: m.text || "agent", kind: SUB_KIND, state, parent: m.source, created_at: m.at });
+  }
+  return [...subs.values()];
+}
+
+/** Tree lanes with each pane's sub-agents right after it, in the order they started. */
+export function withSubLanes(tree: string[], subs: AgentPane[]): string[] {
+  return tree.flatMap((id) => [id, ...subs.filter((s) => s.parent === id).map((s) => s.id)]);
+}
 
 export interface FlowEvent {
   kind: string; verb: string; text: string; at: number; source: string; target: string;

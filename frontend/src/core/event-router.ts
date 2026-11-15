@@ -3,6 +3,7 @@ import { loadHistory } from "../chat/chat-actions";
 import { useChats } from "../chat/chat-store";
 import type { Chat, ChatOp } from "../chat/chat-types";
 import { conn } from "./connection";
+import { bumpMessagesTick } from "./agent-messages-tick";
 import { setServerIconSet } from "./file-icons";
 import { maybeShowRestore } from "../overlays/restore-dialog";
 import { getActions, setPrefix } from "./keys";
@@ -34,6 +35,8 @@ export function routeEvent(name: string, data: unknown): void {
     store.upsertPane(data as Pane);
   } else if (name === "status") {
     onStatus(data as StatusEvent);
+  } else if (name === "messages") {
+    bumpMessagesTick();
   } else if (name === "policy") {
     toast("An agent tried to answer a prompt", "Open the Inbox to allow or deny it.", () => getActions().show?.("inbox"),
       null, { tone: "blocked", action: "Review" });

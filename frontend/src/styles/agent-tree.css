@@ -85,6 +85,9 @@
 .k-done { --c: var(--done); --c-rgb: var(--done-rgb); } .k-blocked { --c: var(--blocked); --c-rgb: var(--blocked-rgb); }
 .k-denied { --c: var(--error); --c-rgb: var(--error-rgb); --ls: dashed; }
 .k-exited { --c: var(--done); --c-rgb: var(--done-rgb); --ls: dashed; }
+/* Claude Code sub-agents (Task/Agent tool) reported by drover's hooks */
+.k-sub-start { --c: var(--accent); --c-rgb: var(--accent-rgb); --ls: dashed; }
+.k-sub-done { --c: var(--done); --c-rgb: var(--done-rgb); --ls: dotted; }
 .k-wait, .k-read, .k-keys { --c: var(--dim); --c-rgb: var(--ink); --ls: dashed; } .k-read { --ls: dotted; }
 
 /* board */

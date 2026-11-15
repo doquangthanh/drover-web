@@ -2,7 +2,7 @@
 // and a bar per helper showing when it was active. Events that don't touch the selected subtree are dimmed.
 import { useMemo } from "react";
 import { KindIcon } from "../ui/atoms/kind-icon";
-import { activityBars, buildFlowEvents, hhmm, laneCenter, touches, type AgentMessage } from "./agent-flow-logic";
+import { activityBars, buildFlowEvents, hhmm, laneCenter, SUB_KIND, touches, type AgentMessage } from "./agent-flow-logic";
 import { stateLabel } from "./agent-tree-inspector";
 import { paneLabel } from "./agent-tree-list";
 import type { AgentPane } from "./views-logic";
@@ -11,6 +11,7 @@ const ROW = 48, PAD = 8, LINE = 28, LANE_MIN = 124, GUTTER = 64;
 const LEGEND: [string, string][] = [
   ["spawn", "started · dr run"], ["send", "sends · dr send"], ["done", "finished"],
   ["wait", "waits · dr wait"], ["blocked", "needs you"], ["denied", "blocked by policy"],
+  ["sub-start", "delegates · sub-agent"],
 ];
 
 export function AgentFlowBoard({ messages, laneIds, paneById, selected, focus }: {
@@ -40,7 +41,7 @@ export function AgentFlowBoard({ messages, laneIds, paneById, selected, focus }:
                     <div className={p ? `s-${p.state}` : "s-idle"}>
                       {p ? <KindIcon kind={p.kind} /> : <span className="ic" style={{ background: "var(--raised)" }}>you</span>}
                       <span className="nm trunc">{p ? paneLabel(p) : "you"}</span>
-                      <span className="st">{p ? stateLabel(p) : "you"}</span>
+                      <span className="st">{!p ? "you" : p.kind === SUB_KIND ? `sub-agent · ${stateLabel(p)}` : stateLabel(p)}</span>
                     </div>
                   </div>
                 );

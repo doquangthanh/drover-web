@@ -6,7 +6,8 @@ import { conn } from "../core/connection";
 import { useStore } from "../core/store";
 import { errorToast } from "../core/toast-store";
 import { clearTopExtra, setTopExtra } from "../shell/top-extra-store";
-import { hhmm, rootOf, subtreeIds, touches, YOU, type AgentMessage } from "./agent-flow-logic";
+import { useMessagesTick } from "../core/agent-messages-tick";
+import { hhmm, rootOf, subAgentPanes, subtreeIds, touches, withSubLanes, YOU, type AgentMessage } from "./agent-flow-logic";
 import { AgentFlowBoard } from "./agent-flow-board";
 import { AgentTreeInspector } from "./agent-tree-inspector";
 import { AgentTreeList, paneLabel } from "./agent-tree-list";
@@ -57,12 +58,21 @@ export default function TreeView() {
     : rows.find((r) => panes.some((p) => p.parent === r.pane.id))?.pane.id || rows[0]?.pane.id || null;
   const root = selected ? rootOf(selected, paneById) : null;
   const tree = useMemo(() => (root ? subtreeIds(root, panes) : []), [root, panes]);
-  const laneIds = useMemo(() => [YOU, ...tree], [tree]);
-  const focus = useMemo(() => (selected && selected !== root ? new Set(subtreeIds(selected, panes)) : null), [selected, root, panes]);
-  // One fetch for the whole tree; refetch when panes change, since agent-to-agent activity shows up as state changes.
-  const { data: fetched, error, stale } = useRpc<AgentMessage[]>("messages.list", root ? { pane: root } : {}, [root, panes]);
+  // One fetch for the whole tree; refetch when panes change (agent-to-agent activity shows up as state changes) or a
+  // Claude Code sub-agent starts / stops (the "messages" tick).
+  const tick = useMessagesTick((s) => s.n);
+  const { data: fetched, error, stale } = useRpc<AgentMessage[]>("messages.list", root ? { pane: root } : {}, [root, panes, tick]);
   const data = stale ? null : fetched;  // never draw another tree's messages on this tree's lanes
   const messages = data || [];
+  // Sub-agents get a lane right after their pane; lanesById resolves both real panes and sub-agents.
+  const subs = useMemo(() => subAgentPanes(messages, paneById).filter((s) => tree.includes(s.parent || "")), [messages, paneById, tree]);
+  const laneIds = useMemo(() => [YOU, ...withSubLanes(tree, subs)], [tree, subs]);
+  const lanesById = useMemo(() => new Map([...paneById, ...subs.map((s) => [s.id, s] as const)]), [paneById, subs]);
+  const focus = useMemo(() => {
+    if (!selected || selected === root) return null;
+    const ids = subtreeIds(selected, panes);
+    return new Set([...ids, ...subs.filter((s) => ids.includes(s.parent || "")).map((s) => s.id)]);
+  }, [selected, root, panes, subs]);
   const shown = focus ? messages.filter((m) => touches(m, focus)) : messages;
   const anyLive = tree.some((id) => ["working", "blocked"].includes(paneById.get(id)?.state || ""));
 
@@ -78,7 +88,7 @@ export default function TreeView() {
     conn.rpc("pane.send", { pane: selected, text }).catch(errorToast);
   };
   const stop = () => { if (selected) conn.rpc("pane.close", { pane: selected, subtree: true }).catch(errorToast); };
-  const name = (id?: string | null) => paneLabel(paneById.get(id || "")) || id || "you";
+  const name = (id?: string | null) => paneLabel(lanesById.get(id || "")) || id || "you";
   const pane = selected ? paneById.get(selected) : undefined;
   const rootPane = root ? paneById.get(root) : undefined;
 
@@ -108,7 +118,7 @@ export default function TreeView() {
             : !selected ? <div className="meta at-empty">Start an agent to see activity.</div>
             : error ? <div className="errtext" style={{ padding: 14 }}>{error}</div>
             : !data ? <div className="meta at-empty">Loading…</div>
-            : tab === "flow" ? <AgentFlowBoard messages={messages} laneIds={laneIds} paneById={paneById} selected={selected} focus={focus} />
+            : tab === "flow" ? <AgentFlowBoard messages={messages} laneIds={laneIds} paneById={lanesById} selected={selected} focus={focus} />
             : <div className="pb-body" style={{ padding: "4px 14px" }}>
                 <Messages messages={shown} name={name} />
               </div>}
