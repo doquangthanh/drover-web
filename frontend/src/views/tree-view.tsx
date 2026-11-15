@@ -1,36 +1,32 @@
-// Agent tree: who started whom, plus the messages they exchanged (dr run / wait / send / read).
+// Agent tree: who started whom (left), the selected agent and its tree's state (top right), and what they did to each
+// other (dr run / wait / send / read) as a live Flow board, a Messages list or the orchestration Policy.
 import { useEffect, useMemo } from "react";
 import { create } from "zustand";
-import { allActions } from "../actions/build-actions";
 import { conn } from "../core/connection";
-import { ago } from "../core/format";
 import { useStore } from "../core/store";
 import { errorToast } from "../core/toast-store";
 import { clearTopExtra, setTopExtra } from "../shell/top-extra-store";
-import { KindIcon } from "../ui/atoms/kind-icon";
-import { StateMark } from "../ui/atoms/state-mark";
+import { hhmm, rootOf, subtreeIds, touches, YOU, type AgentMessage } from "./agent-flow-logic";
+import { AgentFlowBoard } from "./agent-flow-board";
+import { AgentTreeInspector } from "./agent-tree-inspector";
+import { AgentTreeList, paneLabel } from "./agent-tree-list";
 import { useRpc } from "./use-rpc";
 import { MESSAGE_VERB, treeRows, type AgentPane } from "./views-logic";
 
 type Orchestration = Record<string, any>;
-interface AgentMessage { at: number; source?: string; target?: string; kind: string; text?: string }
+type Tab = "flow" | "messages" | "policy";
+const TABS: [Tab, string][] = [["flow", "Flow"], ["messages", "Messages"], ["policy", "Policy"]];
 
-/** Selection + tab survive leaving the view, like the old module state. */
-const useTreeNav = create<{ selected: string | null; tab: "messages" | "policy" }>(() => ({ selected: null, tab: "messages" }));
+/** Selection, tab and filter survive leaving the view. */
+const useTreeNav = create<{ selected: string | null; tab: Tab; query: string }>(() => ({ selected: null, tab: "flow", query: "" }));
 
-function Messages({ selected }: { selected: string }) {
-  const paneById = useStore((s) => s.paneById);
-  const panes = useStore((s) => s.panes);
-  // Refetch when panes change: agent-to-agent activity shows up as state changes.
-  const { data, error } = useRpc<AgentMessage[]>("messages.list", { pane: selected }, [selected, panes]);
-  const name = (id?: string) => paneById.get(id || "")?.name || id || "you";
-  if (error) return <div className="errtext">{error}</div>;
-  if (!data) return <div className="meta">Loading…</div>;
-  if (!data.length) return <div className="meta">No agent-to-agent activity yet. Agents use `dr run`, `dr wait`, `dr send`.</div>;
-  return <>{data.slice().reverse().map((m, i) => (
-    <div className="msg" key={i}>
-      <span className="meta mono">{new Date(m.at * 1000).toLocaleTimeString().slice(0, 5)}</span>
-      <div>
+function Messages({ messages, name }: { messages: AgentMessage[]; name: (id?: string | null) => string }) {
+  if (!messages.length) return <div className="meta at-empty">No agent-to-agent activity yet. Agents use `dr run`, `dr wait`, `dr send`.</div>;
+  return <>{messages.slice().reverse().map((m, i) => (
+    <div className={`at-msg k-${m.kind}`} key={i}>
+      <span className="meta mono">{hhmm(m.at)}</span>
+      <span className="at-dot" />
+      <div className="grow">
         <b>{name(m.source)}</b>{` ${MESSAGE_VERB[m.kind] || m.kind} `}<b>{name(m.target)}</b>
         {m.text ? <div className="mono meta" style={{ marginTop: 3, whiteSpace: "pre-wrap" }}>{m.text}</div> : null}
       </div>
@@ -39,26 +35,36 @@ function Messages({ selected }: { selected: string }) {
 }
 
 function PolicyPanel({ o }: { o: Orchestration }) {
-  return <>
-    <div className="kv" style={{ padding: "10px 0" }}>
-      <span>Agents may answer prompts</span><span className="mono">{String(o.agents_may_answer_permission_prompts ?? "ask-user")}</span>
-      <span>Max agents</span><span className="mono">{String(o.max_panes ?? "?")}</span>
-      <span>Max depth</span><span className="mono">{String(o.max_depth ?? "?")}</span>
-      <span>Stop helpers with parent</span><span className="mono">{String(!!o.kill_children_on_parent_exit)}</span>
+  const items: [string, unknown][] = [
+    ["Agents may answer prompts", o.agents_may_answer_permission_prompts ?? "ask-user"], ["Max agents", o.max_panes ?? "?"],
+    ["Max depth", o.max_depth ?? "?"], ["Stop helpers with parent", !!o.kill_children_on_parent_exit],
+  ];
+  return (
+    <div className="at-policy">
+      {items.map(([k, v]) => <div key={k} className="at-tile"><span className="meta">{k}</span><span className="v">{String(v)}</span></div>)}
+      <div className="meta" style={{ gridColumn: "1 / -1" }}>Edit these under [orchestration] in settings.toml.</div>
     </div>
-    <div className="meta">Edit these under [orchestration] in settings.toml.</div>
-  </>;
+  );
 }
 
 export default function TreeView() {
   const panes = useStore((s) => s.panes) as AgentPane[];
-  const paneById = useStore((s) => s.paneById);
+  const paneById = useStore((s) => s.paneById) as Map<string, AgentPane>;
   const o = (useStore((s) => s.raw.orchestration) || {}) as Orchestration;
-  const { selected: picked, tab } = useTreeNav();
+  const { selected: picked, tab, query } = useTreeNav();
   const rows = useMemo(() => treeRows(panes), [panes]);
   const selected = picked && paneById.has(picked) ? picked
     : rows.find((r) => panes.some((p) => p.parent === r.pane.id))?.pane.id || rows[0]?.pane.id || null;
-  const roots = rows.filter((r) => r.prefix.length === 2).length;
+  const root = selected ? rootOf(selected, paneById) : null;
+  const tree = useMemo(() => (root ? subtreeIds(root, panes) : []), [root, panes]);
+  const laneIds = useMemo(() => [YOU, ...tree], [tree]);
+  const focus = useMemo(() => (selected && selected !== root ? new Set(subtreeIds(selected, panes)) : null), [selected, root, panes]);
+  // One fetch for the whole tree; refetch when panes change, since agent-to-agent activity shows up as state changes.
+  const { data: fetched, error, stale } = useRpc<AgentMessage[]>("messages.list", root ? { pane: root } : {}, [root, panes]);
+  const data = stale ? null : fetched;  // never draw another tree's messages on this tree's lanes
+  const messages = data || [];
+  const shown = focus ? messages.filter((m) => touches(m, focus)) : messages;
+  const anyLive = tree.some((id) => ["working", "blocked"].includes(paneById.get(id)?.state || ""));
 
   useEffect(() => {
     setTopExtra("tree", { right: <span className="meta">
@@ -71,40 +77,41 @@ export default function TreeView() {
     if (!text || !selected) return;
     conn.rpc("pane.send", { pane: selected, text }).catch(errorToast);
   };
-  const seg = (id: "messages" | "policy", text: string) => (
-    <button className={"seg" + (tab === id ? " on" : "")} onClick={() => useTreeNav.setState({ tab: id })}>{text}</button>
-  );
+  const stop = () => { if (selected) conn.rpc("pane.close", { pane: selected, subtree: true }).catch(errorToast); };
+  const name = (id?: string | null) => paneLabel(paneById.get(id || "")) || id || "you";
+  const pane = selected ? paneById.get(selected) : undefined;
+  const rootPane = root ? paneById.get(root) : undefined;
 
   return (
-    <div className="vsplit">
-      <div className="panel tpanel" style={{ width: 420, flex: "none" }}>
-        <div className="pb-body" style={{ padding: 10 }}>
-          <div className="node"><span className="you">you</span><span className="meta">{`started ${roots} agent${roots === 1 ? "" : "s"}`}</span></div>
-          {rows.map(({ pane, prefix }) => (
-            <button key={pane.id} className={"node" + (pane.id === selected ? " on" : "")} onClick={() => useTreeNav.setState({ selected: pane.id })}>
-              <span className="tree">{prefix}</span><KindIcon kind={pane.kind} /><span className="grow trunc">{pane.name}</span>
-              <span className="meta">{pane.state === "idle" && pane.parent ? "waits" : pane.machine && pane.machine !== "local" ? pane.machine : ago(pane.created_at || 0)}</span>
-              <StateMark pane={pane} />
-            </button>
-          ))}
-          {rows.length ? null : <div className="meta">No agents.</div>}
-        </div>
-        {selected ? (
-          <div className="row tbtn">
-            <button className="btn" onClick={() => allActions.focusPane(selected)}>Open</button>
-            <button className="btn" onClick={send}>Send…</button>
-            <button className="btn danger" onClick={() => conn.rpc("pane.close", { pane: selected, subtree: true }).catch(errorToast)}>Stop subtree</button>
-          </div>
+    <div className="vsplit at">
+      <AgentTreeList rows={rows} panes={panes} selected={selected} query={query}
+        onQuery={(q) => useTreeNav.setState({ query: q })} onPick={(id) => useTreeNav.setState({ selected: id })} />
+      <div className="at-main">
+        {pane && rootPane ? (
+          <AgentTreeInspector pane={pane} root={rootPane} paneById={paneById} onSend={send} onStop={stop}
+            tree={tree.map((id) => paneById.get(id)).filter((p): p is AgentPane => !!p)} />
         ) : null}
-      </div>
-      <div className="panel grow">
-        <div className="ph s38" style={{ gap: 4 }}>
-          {seg("messages", "Messages")}{seg("policy", "Policy")}<span className="grow" />
-          <span className="meta">{selected ? `${paneById.get(selected)?.name} and its helpers` : ""}</span>
-        </div>
-        <div className="pb-body" style={{ padding: "4px 14px" }}>
+        <div className="panel at-act">
+          <div className="ph">
+            <div className="at-tabs" role="group" aria-label="View">
+              {TABS.map(([id, text]) => (
+                <button key={id} className={"seg" + (tab === id ? " on" : "")} aria-pressed={tab === id}
+                  onClick={() => useTreeNav.setState({ tab: id })}>{text}</button>
+              ))}
+            </div>
+            <span className="grow" />
+            {tab !== "policy" && pane && data ? <span className="at-live s-working">
+              {anyLive ? <span className="at-dot live" /> : null}
+              {`${anyLive ? "Live · " : ""}${shown.length} event${shown.length === 1 ? "" : "s"}`}</span> : null}
+          </div>
           {tab === "policy" ? <PolicyPanel o={o} />
-            : selected ? <Messages selected={selected} /> : <div className="meta">Start an agent to see activity.</div>}
+            : !selected ? <div className="meta at-empty">Start an agent to see activity.</div>
+            : error ? <div className="errtext" style={{ padding: 14 }}>{error}</div>
+            : !data ? <div className="meta at-empty">Loading…</div>
+            : tab === "flow" ? <AgentFlowBoard messages={messages} laneIds={laneIds} paneById={paneById} selected={selected} focus={focus} />
+            : <div className="pb-body" style={{ padding: "4px 14px" }}>
+                <Messages messages={shown} name={name} />
+              </div>}
         </div>
       </div>
     </div>

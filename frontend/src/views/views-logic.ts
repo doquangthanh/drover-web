@@ -36,26 +36,42 @@ export function channelLabel(v: unknown, all = false): string {
   return v.map((x: string) => x[0].toUpperCase() + x.slice(1)).join(" · ");
 }
 
-export interface TreeRow { pane: AgentPane; prefix: string }
+/** `guides[i]`: the ancestor at depth i still has siblings below, so its connector line keeps going. */
+export interface TreeRow { pane: AgentPane; guides: boolean[]; last: boolean }
 
-/** Depth-first flattening with box-drawing prefixes. A helper whose parent was closed becomes a root. */
+/** Depth-first flattening for the connector-line tree. A helper whose parent was closed becomes a root. */
 export function treeRows(panes: AgentPane[]): TreeRow[] {
   const ids = new Set(panes.map((p) => p.id));
   const isRoot = (p: AgentPane) => !p.parent || !ids.has(p.parent);
   const out: TreeRow[] = [];
-  const walk = (parent: string | null, indent: string) => {
-    const kids = panes.filter((p) => (parent === null ? isRoot(p) : p.parent === parent));
+  const seen = new Set<string>();
+  const walk = (parent: string | null, guides: boolean[]) => {
+    const kids = panes.filter((p) => !seen.has(p.id) && (parent === null ? isRoot(p) : p.parent === parent));
     kids.forEach((p, i) => {
       const last = i === kids.length - 1;
-      out.push({ pane: p, prefix: indent + (last ? "└ " : "├ ") });
-      walk(p.id, indent + (last ? "   " : "│  "));
+      seen.add(p.id);
+      out.push({ pane: p, guides, last });
+      walk(p.id, [...guides, !last]);
     });
   };
-  walk(null, "");
+  walk(null, []);
   return out;
 }
 
+/** Rows whose name matches `query`, plus their ancestors so the tree shape stays readable. */
+export function filterTreeRows(rows: TreeRow[], query: string): TreeRow[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return rows;
+  const byId = new Map(rows.map((r) => [r.pane.id, r.pane]));
+  const keep = new Set<string>();
+  for (const { pane } of rows) {
+    if (!`${pane.name || ""} ${pane.title || ""}`.toLowerCase().includes(q)) continue;
+    for (let p: AgentPane | undefined = pane; p && !keep.has(p.id); p = p.parent ? byId.get(p.parent) : undefined) keep.add(p.id);
+  }
+  return rows.filter((r) => keep.has(r.pane.id));
+}
+
 export const MESSAGE_VERB: Record<string, string> = {
-  spawn: "started", wait: "is waiting for", send: "→", read: "read", done: "finished for",
+  spawn: "started", wait: "is waiting for", send: "→", keys: "pressed keys in", read: "read", done: "finished for",
   blocked: "needs an answer — asked", denied: "tried to answer for",
 };

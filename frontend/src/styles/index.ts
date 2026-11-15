@@ -9,6 +9,7 @@ import "./composer.css";
 import "./chat.css";
 import "./overlays.css";
 import "./views.css";
+import "./agent-tree.css";
 import "./tablet-touch-wide.css";
 import "./mobile.css";
 import "./mobile-views.css";
