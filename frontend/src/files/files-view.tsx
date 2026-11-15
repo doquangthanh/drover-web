@@ -34,7 +34,7 @@ function FilesBody({ space }: { space: Space }) {
 
   const newFile = useCallback(async () => {
     const dir = ui.file && ui.file.includes("/") ? ui.file.slice(0, ui.file.lastIndexOf("/") + 1) : "";
-    const path = ((await promptText("New file", dir, "path inside this workspace, e.g. src/utils.py")) || "").trim().replace(/^\/+/, "");
+    const path = ((await promptText("New file", dir, "path inside this space, e.g. src/utils.py")) || "").trim().replace(/^\/+/, "");
     if (path) await createFile(path);
   }, [ui.file, createFile]);
 
@@ -56,6 +56,6 @@ function FilesBody({ space }: { space: Space }) {
 
 export default function FilesView() {
   const space = useStore((s) => (s.ui.spaceId ? s.spaceById.get(s.ui.spaceId) : undefined));
-  if (!space) return <div className="view meta">Open a workspace first.</div>;
+  if (!space) return <div className="view meta">Open a space first.</div>;
   return <FilesBody key={space.id} space={space} />;
 }

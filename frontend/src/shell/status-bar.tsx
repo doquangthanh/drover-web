@@ -24,7 +24,7 @@ export function StatusBar() {
         <span className={`dot ${connected ? "ok" : "bad"}`} />
         {connected ? "drover-server up" : "reconnecting…"}
       </span>
-      <span>{`${machines.length ? `${up} of ${1 + machines.length} machines` : "This computer"} · ${spaceCount} workspaces · ${paneCount} agents`}</span>
+      <span>{`${machines.length ? `${up} of ${1 + machines.length} machines` : "This computer"} · ${spaceCount} spaces · ${paneCount} agents`}</span>
       {blocked ? <span className="blocked">{`${blocked} need you`}</span> : null}
       <BranchChip space={space} onClick={() => allActions.show("changes")} />
       {pane ? <span className="trunc">{shortPath(pane.cwd)}</span> : null}

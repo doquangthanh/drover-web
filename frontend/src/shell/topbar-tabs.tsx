@@ -1,4 +1,4 @@
-// Desktop/tablet workspace top bar: tabs (or the workspace name when it has one tab), new agent, split, view shortcuts (+ phone back/files/more buttons).
+// Desktop/tablet workspace top bar: space tabs, new agent, split, view shortcuts (+ phone back/files/more buttons).
 import { memo, useEffect, useMemo } from "react";
 import { allActions } from "../actions/build-actions";
 import type { Pane, Tab } from "../core/protocol-types";
@@ -36,7 +36,6 @@ export function TopbarTabs() {
   const paneById = useStore((s) => s.paneById);
   const zoomed = useStore((s) => !!(s.ui.tabId && s.tabById.get(s.ui.tabId)?.zoomed));
   const tabs = useMemo(() => allTabs.filter((t) => t.space_id === spaceId), [allTabs, spaceId]);
-  const space = useStore((s) => (s.ui.spaceId ? s.spaceById.get(s.ui.spaceId) : undefined));
   useEffect(() => { // mouse wheel over the tab bar scrolls it sideways when the tabs overflow
     const bar = document.getElementById("topbar");
     if (!bar) return;
@@ -52,16 +51,10 @@ export function TopbarTabs() {
     <>
       <button className="pb mobile-back mobile-only" onClick={() => allActions.mobileBack()} aria-label="Back"><Icon name="back" /></button>
       {sidebar ? null : <button className="pb" aria-label="Show sidebar" onClick={() => allActions.toggleSidebar()}><Icon name="sidebar" /></button>}
-      {/* A tab strip only pays off with two or more tabs; with one, name the workspace and its folder instead. */}
-      {tabs.length > 1 ? tabs.map((t) => (
+      {tabs.map((t) => (
         <TopTab key={t.id} tab={t} on={t.id === tabId}
           focused={(t.focused ? paneById.get(t.focused) : undefined) || panes.find((p) => p.tab_id === t.id)} />
-      )) : space ? (
-        <span className="ws-crumb desk" title={space.cwd}>
-          <span className="title">{space.name}</span>
-          {space.cwd ? <span className="ws-path">{space.cwd}</span> : null}
-        </span>
-      ) : null}
+      ))}
       <button className="pb" aria-label="New agent" title="New agent (Ctrl+A c)" onClick={() => allActions.newAgent()}>+</button>
       <span className="grow" />
       {zoomed ? <span className="zoomed desk">Zoomed · Ctrl A z</span> : null}

@@ -31,7 +31,7 @@ export function mobileMode(view: string, mobilePane: string | null): "home" | "p
 export const machineDot = (status: string | undefined): "ok" | "bad" | "blocked" =>
   status === "connected" || status === "local" ? "ok" : status === "error" ? "bad" : "blocked";
 
-/** Top bar titles of the full-page views: [title, hint]. `null` title means "current workspace name". */
+/** Top bar titles of the full-page views: [title, hint]. `null` title means "current space name". */
 export const VIEW_TITLES: Record<string, [string | null, string?]> = {
   inbox: ["Inbox"], machines: ["Machines", "reached over SSH · daemons never listen on the network"],
   settings: ["Settings"], tree: ["Agent tree", "who started whom · Ctrl A o"], server: ["drover-server"],

@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import { getActions } from "../core/keys";
 import { conn } from "../core/connection";
-import { expectNewWorkspace } from "../core/new-workspace-notice";
 import type { Machine } from "../core/protocol-types";
 import { useStore } from "../core/store";
 import { errorToast } from "../core/toast-store";
@@ -66,7 +65,6 @@ function NewAgent({ opts }: { opts: NewAgentOpts }) {
     }
     const params = createParams({ command, cwd, name, kind, machine, worktree, place, focused });
     try {
-      expectNewWorkspace(); // a folder picked here may open a workspace: the user asked for it, no toast
       const pane = await conn.rpc("pane.create", params);
       closeModal();
       if (place !== "background") getActions().focusPane?.(pane.id);

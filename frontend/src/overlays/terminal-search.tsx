@@ -77,7 +77,7 @@ function Search() {
         row: agentRow(p, q, parent?.name, (p.space_id && spaceById.get(p.space_id)?.name) || "") };
     });
     for (const s of matchSpaces(spaces, q)) {
-      out.push({ key: `s:${s.id}`, section: "Workspaces & worktrees", pane: null, go: () => actions.selectSpace?.(s.id),
+      out.push({ key: `s:${s.id}`, section: "Spaces & worktrees", pane: null, go: () => actions.selectSpace?.(s.id),
         row: <><SpaceAvatar space={s} /><span className="lb"><Highlight text={s.name || ""} q={q} /></span>
           <span className="meta mono trunc">{s.branch || s.cwd}</span></> });
     }
@@ -100,7 +100,7 @@ function Search() {
         <Icon name="search" />
         <input className="qin" placeholder="Jump to a terminal…" aria-label="Jump to a terminal" autoFocus value={query}
           onChange={(e) => setQuery(e.target.value)} onKeyDown={nav.onKeyDown} />
-        <span className="meta">agents · workspaces · scrollback</span>
+        <span className="meta">agents · spaces · scrollback</span>
         <span className="k">Esc</span>
       </div>
       <div className="sp">
