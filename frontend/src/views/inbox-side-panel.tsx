@@ -2,18 +2,15 @@
 import { conn } from "../core/connection";
 import { useStore } from "../core/store";
 import { errorToast } from "../core/toast-store";
-import { KindIcon } from "../ui/atoms/kind-icon";
+import { ToastCard } from "../shell/toasts";
 import { channelLabel, type AgentPane } from "./views-logic";
 
 function SampleToast({ pane, kind }: { pane: AgentPane; kind: "done" | "blocked" }) {
   return (
-    <div className="toast static">
-      <div className="row">
-        {kind === "done" ? <span className="dot done" /> : <KindIcon kind={pane.kind} />}
-        <b className="grow">{kind === "done" ? `${pane.name} finished` : `${pane.name} needs you`}</b><span className="dim">×</span>
-      </div>
-      <div className="sub">{pane.title || pane.command}</div>
-    </div>
+    <ToastCard toast={{
+      title: kind === "done" ? `${pane.name} finished` : `${pane.name} needs you`, sub: pane.title || pane.command || "",
+      lead: { type: "kind", kind: pane.kind || "" }, tone: kind, action: "", ms: 0,
+    }} />
   );
 }
 

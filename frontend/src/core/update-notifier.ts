@@ -16,11 +16,11 @@ async function check(): Promise<void> {
     const info = await conn.rpc<UpdateInfo>("update.check", {});
     if (!info.available || info.latest === announced) return;
     announced = info.latest;
-    const sub = info.installable ? "Click to update from Settings → Updates" : "See Settings → Updates";
+    const sub = info.installable ? "Install it from Settings → Updates" : "See Settings → Updates";
     toast(`Drover v${info.latest} is available`, sub, () => {
       useSettingsNav.setState({ section: "updates" });
       getActions().settings?.();
-    });
+    }, null, { tone: "update", action: info.installable ? "Update" : "View" });
   } catch {
     // Offline or GitHub rate limit: stay quiet, try again later.
   }

@@ -4,7 +4,8 @@
   --border: rgb(var(--ink) / .094); --border2: rgb(var(--ink) / .12);
   --hover: rgb(var(--ink) / .055); --selected: rgb(var(--ink) / .09);
   --accent: #96b2d7; --working: #76a8ff; --blocked: #f2a33c; --done: #4cc48c; --error: #e8848c;
-  --ink: 255 255 255; --accent-rgb: 150 178 215; --blocked-rgb: 242 163 60; --head: #1b1d21; --add: #a6bd91; --rem: #dc8c95; --on-accent: #101114;
+  --ink: 255 255 255; --accent-rgb: 150 178 215; --blocked-rgb: 242 163 60;
+  --done-rgb: 76 196 140; --error-rgb: 232 132 140; --working-rgb: 118 168 255; --head: #1b1d21; --add: #a6bd91; --rem: #dc8c95; --on-accent: #101114;
   --yellow: #d8be87;
   --ui: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
@@ -69,6 +70,4 @@ svg.i { width: 15px; height: 15px; flex: none; }
 .btn.dng { background: var(--error); border-color: var(--error); color: var(--on-accent); font-weight: 600; }
 .btn.sm { height: 26px; padding: 0 10px; font-size: 12px; }
 .btn.lg { height: 32px; padding: 0 14px; font-size: 13px; border-radius: 8px; }
-.toast .tx { width: 18px; height: 18px; color: var(--dim); }
-.toast .row { gap: 8px; }
-.toast b { font-weight: 600; }
+.toast .tx { width: 20px; height: 20px; flex: none; color: var(--dim); font-size: 15px; line-height: 1; }

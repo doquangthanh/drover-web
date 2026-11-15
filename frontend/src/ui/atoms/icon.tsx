@@ -23,7 +23,10 @@ const PATHS: Record<string, string> = {
   tab: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/>',
   send: '<path d="M4 12h16M14 6l6 6-6 6"/>',
   home: '<path d="M3 11l9-7 9 7v9H3z"/>',
-  keyboard: '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  alert: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5h.01"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5h.01"/>',
+  keyboard:'<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>',
 };
 
 export type IconName = keyof typeof PATHS;

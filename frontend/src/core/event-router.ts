@@ -9,7 +9,7 @@ import { getActions, setPrefix } from "./keys";
 import type { Pane, RawState, StatusEvent } from "./protocol-types";
 import { useStore } from "./store";
 import { setServerTheme } from "./theme";
-import { toast } from "./toast-store";
+import { toast, type ToastTone } from "./toast-store";
 import { startUpdateNotifier } from "./update-notifier";
 
 export function routeEvent(name: string, data: unknown): void {
@@ -35,7 +35,8 @@ export function routeEvent(name: string, data: unknown): void {
   } else if (name === "status") {
     onStatus(data as StatusEvent);
   } else if (name === "policy") {
-    toast("An agent tried to answer a prompt", "Open the Inbox to allow or deny it.", () => getActions().show?.("inbox"));
+    toast("An agent tried to answer a prompt", "Open the Inbox to allow or deny it.", () => getActions().show?.("inbox"),
+      null, { tone: "blocked", action: "Review" });
   }
 }
 
@@ -46,7 +47,7 @@ function onStatus(data: StatusEvent): void {
   if (visible || !(data.new === "blocked" || data.new === "done" || data.new === "exited")) return;
   const title = data.new === "blocked" ? `${pane.name} needs you` : data.new === "done" ? `${pane.name} finished` : `${pane.name} stopped`;
   toast(title, pane.title || pane.command || "", () => getActions().focusPane?.(pane.id),
-    data.new === "done" ? { type: "done" } : { type: "kind", kind: pane.kind || "" });
+    { type: "kind", kind: pane.kind || "" }, { tone: data.new as ToastTone, action: data.new === "blocked" ? "Answer" : "Open" });
 }
 
 /** Wire the connection to the store and open the socket. Call once at startup. */
