@@ -1,6 +1,6 @@
 // Settings: every config file editable in place (validated on save), appearance, detection rules + tester.
+import { useSettingsNav } from "./settings-nav-store";
 import { useEffect } from "react";
-import { create } from "zustand";
 import { clearTopExtra, setTopExtra } from "../shell/top-extra-store";
 import { AppearancePanel } from "./appearance-panel";
 import { UpdatePanel } from "./update-panel";
@@ -18,7 +18,7 @@ const SECTIONS: [string, string, string?, string?][] = [
 interface SettingsData { dir: string; files: SettingsFile[]; errors: string[] }
 
 /** Section + rule survive leaving the view. */
-const useSettingsNav = create<{ section: string; rule: string | null }>(() => ({ section: "general", rule: null }));
+// useSettingsNav lives in settings-nav-store so the update toast can open the Updates section.
 
 export default function SettingsView() {
   const { section, rule } = useSettingsNav();

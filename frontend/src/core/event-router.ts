@@ -10,6 +10,7 @@ import type { Pane, RawState, StatusEvent } from "./protocol-types";
 import { useStore } from "./store";
 import { setServerTheme } from "./theme";
 import { toast } from "./toast-store";
+import { startUpdateNotifier } from "./update-notifier";
 
 export function routeEvent(name: string, data: unknown): void {
   const store = useStore.getState();
@@ -53,4 +54,5 @@ export function startCore(): void {
   conn.onEvent(routeEvent);
   conn.onConnection = (up) => useStore.getState().setConnected(up);
   conn.connect();
+  startUpdateNotifier();
 }

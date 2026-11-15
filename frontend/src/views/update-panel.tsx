@@ -30,7 +30,7 @@ export function UpdatePanel() {
           {data.notes ? <pre className="meta mono" style={{ whiteSpace: "pre-wrap", maxHeight: 180, overflow: "auto" }}>{data.notes}</pre> : null}
           {data.installable
             ? <button className="btn pri" disabled={busy || done} onClick={install}>{done ? "Updated: restarting…" : busy ? "Updating…" : `Update to v${data.latest}`}</button>
-            : <p className="meta">This install can't update itself. Re-run the install script (Linux) or <span className="mono">git pull</span> (from source).</p>}
+            : <p className="meta">Installed from source: update with <span className="mono">git pull</span> (or <span className="mono">uv tool upgrade</span>). Release builds for Windows and Linux update here.</p>}
         </>
       ) : null}
       {fail ? <p className="errtext">{fail}</p> : null}
