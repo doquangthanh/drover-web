@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { create } from "zustand";
 import { clearTopExtra, setTopExtra } from "../shell/top-extra-store";
 import { AppearancePanel } from "./appearance-panel";
+import { UpdatePanel } from "./update-panel";
 import { AgentsMain, RulesColumn, type RuleInfo } from "./settings-agents-section";
 import { SettingsFilePanel, canOpenPath, openPath, type SettingsFile } from "./settings-file-panel";
 import { useRpc } from "./use-rpc";
@@ -11,7 +12,7 @@ import { useRpc } from "./use-rpc";
 const SECTIONS: [string, string, string?, string?][] = [
   ["general", "General", "settings.toml"], ["appearance", "Appearance"], ["notifications", "Notifications", "settings.toml", "[notify]"],
   ["keyboard", "Keyboard", "keys.toml"], ["agents", "Agents & detection"], ["machines", "Machines", "machines.toml"],
-  ["policy", "Agent policy", "settings.toml", "[orchestration]"], ["docs", "Notes for agents", "AGENTS.md"],
+  ["policy", "Agent policy", "settings.toml", "[orchestration]"], ["docs", "Notes for agents", "AGENTS.md"], ["updates", "Updates"],
 ];
 
 interface SettingsData { dir: string; files: SettingsFile[]; errors: string[] }
@@ -60,6 +61,7 @@ export default function SettingsView() {
         <RulesColumn rules={rules} files={data.files} selected={ruleId} onSelect={(id) => useSettingsNav.setState({ rule: id })} onChanged={changed} />
       ) : null}
       {sec[0] === "appearance" ? <div className="smain"><div className="panel"><AppearancePanel /></div></div>
+        : sec[0] === "updates" ? <div className="smain"><div className="panel"><UpdatePanel /></div></div>
         : sec[0] === "agents" ? <AgentsMain rule={ruleId} files={data.files} errors={data.errors} onChanged={changed} />
         : <div className="smain"><SettingsFilePanel file={byName(sec[2]!)} errors={data.errors} marker={sec[3]} withTest={sec[0] === "notifications"} onSaved={changed} /></div>}
     </div>
