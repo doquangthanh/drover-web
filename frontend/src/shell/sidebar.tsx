@@ -3,7 +3,8 @@ import { Fragment, useEffect, useMemo } from "react";
 import { allActions } from "../actions/build-actions";
 import { useStore } from "../core/store";
 import { Icon, type IconName } from "../ui/atoms/icon";
-import { ChatRows } from "../chat/chat-sidebar";
+import { ChatRowList, sameDir } from "../chat/chat-sidebar";
+import { useChats } from "../chat/chat-store";
 import { SidebarAgentRow } from "./sidebar-agent-row";
 import { SidebarSpaceRow } from "./sidebar-space-row";
 import { machineDot, sortedPanesOf } from "./shell-logic";
@@ -53,7 +54,17 @@ function AgentsSection() {
   const spaces = useStore((s) => s.spaces);
   const panes = useStore((s) => s.panes);
   const focused = useStore((s) => s.ui.focusedPane);
-  const groups = useMemo(() => spaces.map((space) => ({ space, panes: sortedPanesOf(panes, space.id) })).filter((g) => g.panes.length), [spaces, panes]);
+  const chats = useChats((s) => s.chats);
+  // Chats are local: file each under the local space with the same folder; the rest go last.
+  const { groups, loose } = useMemo(() => {
+    const used = new Set<string>();
+    const groups = spaces.map((space) => {
+      const own = space.machine && space.machine !== "local" ? [] : chats.filter((c) => sameDir(c.cwd, space.cwd));
+      own.forEach((c) => used.add(c.id));
+      return { space, panes: sortedPanesOf(panes, space.id), chats: own };
+    }).filter((g) => g.panes.length || g.chats.length);
+    return { groups, loose: chats.filter((c) => !used.has(c.id)) };
+  }, [spaces, panes, chats]);
   return (
     <div className="sb-half">
       <div className="shead" style={{ height: 41 }}>
@@ -61,14 +72,15 @@ function AgentsSection() {
         <button className="ibtn" title="Agent tree" aria-label="Agent tree" onClick={() => allActions.show("tree")}><Icon name="layers" /></button>
       </div>
       <div className="slist">
-        {groups.map(({ space, panes: list }) => (
+        {groups.map(({ space, panes: list, chats: own }) => (
           <Fragment key={space.id}>
             <div className="grp">{space.machine && space.machine !== "local" ? `${space.name} · ${space.machine}` : space.name}</div>
             {list.map((p) => <SidebarAgentRow key={p.id} pane={p} on={focused === p.id} />)}
+            <ChatRowList chats={own} />
           </Fragment>
         ))}
-        <ChatRows />
-        {!panes.length ? <div className="empty-hint">No agents yet. Ctrl+A C starts one.</div> : null}
+        <ChatRowList chats={loose} />
+        {!panes.length && !chats.length ?<div className="empty-hint">No agents yet. Ctrl+A C starts one.</div> : null}
       </div>
     </div>
   );

@@ -7,7 +7,6 @@ import { useStore } from "../core/store";
 import { InlineNameInput } from "../shell/inline-name-input";
 import { StateMark } from "../ui/atoms/state-mark";
 import { chatActions } from "./chat-actions";
-import { useChats } from "./chat-store";
 import type { Chat } from "./chat-types";
 
 const Bubble = () => (
@@ -50,14 +49,12 @@ const ChatRow = memo(function ChatRow({ chat, on }: { chat: Chat; on: boolean })
   );
 });
 
-export function ChatRows() {
-  const chats = useChats((s) => s.chats);
+const norm = (p: string) => p.replace(/\\/g, "/").replace(/\/+$/, "").toLowerCase();
+/** Same folder, whatever the slash style or case (Windows paths). */
+export const sameDir = (a?: string, b?: string) => !!a && !!b && norm(a) === norm(b);
+
+/** Chat rows live in the Agents list: under the space with the same folder, else at the end. */
+export function ChatRowList({ chats }: { chats: Chat[] }) {
   const current = useStore((s) => (s.ui.view === "chat" ? s.ui.chatId : null));
-  if (!chats.length) return null;
-  return (
-    <>
-      <div className="grp">Chats</div>
-      {chats.map((c) => <ChatRow key={c.id} chat={c} on={current === c.id} />)}
-    </>
-  );
+  return <>{chats.map((c) => <ChatRow key={c.id} chat={c} on={current === c.id} />)}</>;
 }
