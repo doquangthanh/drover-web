@@ -48,9 +48,15 @@ function resolve(name: string): string {
   return TERM[name] ? name : "dark";
 }
 
+/** Desktop app: tell the native window to match (the bridge may not be injected yet at first load; shown-event covers that). */
+function syncTitleBar(): void {
+  try { (window as any).pywebview?.api?.set_dark_title?.(current !== "light"); } catch { /* browser: no native title bar */ }
+}
+
 function apply(): void {
   current = resolve(stored() || serverTheme);
   document.documentElement.dataset.theme = current;
+  syncTitleBar();
   listeners.forEach((fn) => fn());
 }
 
@@ -81,4 +87,5 @@ export function setServerTheme(name: unknown): void {
 }
 
 matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => { if (chosenTheme() === "auto") apply(); });
+window.addEventListener("pywebviewready", syncTitleBar); // the bridge arrives after the first apply()
 apply();
