@@ -13,6 +13,13 @@ import { FONT, scheduleFit } from "./terminal-fit";
 import type { TermEntry } from "./terminal-entry";
 
 const terms = new Map<string, TermEntry>();
+
+/** xterm's default link handlers call window.open() with no URL and set location afterwards. The desktop window
+ * (pywebview/WebView2) hands that first "about:blank" to the OS, which shows "Get an app to open this 'about' link".
+ * Passing the URL to window.open directly lets the host open the real address in the system browser. */
+function openLink(_ev: MouseEvent, uri: string): void {
+  if (/^https?:\/\//i.test(uri)) window.open(uri, "_blank", "noopener,noreferrer");
+}
 onThemeChange(() => { for (const { term } of terms.values()) term.options.theme = termTheme(); });
 
 /** Idempotent: returns the existing entry (StrictMode double mounts, re-parenting). */
@@ -24,10 +31,11 @@ export function getTerminal(paneId: string): TermEntry {
   const term = new Terminal({
     fontFamily: FONT, fontSize: isPhone() ? 12 : 13, lineHeight: 1.15,
     ...termOptions(), scrollback: 5000, allowProposedApi: true, macOptionIsMeta: true,
+    linkHandler: { activate: openLink }, // OSC 8 hyperlinks (Claude Code prints these)
   });
   const fit = new FitAddon();
   term.loadAddon(fit);
-  try { term.loadAddon(new WebLinksAddon()); } catch { /* optional */ }
+  try { term.loadAddon(new WebLinksAddon(openLink)); } catch { /* optional */ }
   const entry: TermEntry = {
     paneId, el, term, fit, opened: false, lastSize: "", resizeTimer: undefined, refocus: false, wantFocus: false,
     findIndex: 0, findQuery: "", observer: new ResizeObserver(() => scheduleFit(entry)),
