@@ -1,4 +1,4 @@
-// What the daemon sends for chats (see src/herd/chat/transcript_builder.py for the item contract).
+// What the daemon sends for chats (see src/drover/chat/transcript_builder.py for the item contract).
 export type PermissionMode = "default" | "acceptEdits" | "plan" | "bypassPermissions";
 export type ChatState = "idle" | "working" | "blocked";
 

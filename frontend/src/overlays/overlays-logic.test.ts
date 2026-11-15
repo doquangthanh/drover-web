@@ -60,9 +60,9 @@ describe("terminal search", () => {
     expect(matchAgents(many, "")).toHaveLength(12);
   });
   it("lists spaces only when a query is typed", () => {
-    const spaces = [{ id: "s1", name: "herd", cwd: "/w/herd" }];
+    const spaces = [{ id: "s1", name: "drover", cwd: "/w/drover" }];
     expect(matchSpaces(spaces, "")).toEqual([]);
-    expect(matchSpaces(spaces, "HER")).toHaveLength(1);
+    expect(matchSpaces(spaces, "DRO")).toHaveLength(1);
     expect(matchSpaces(spaces, "/w/")).toHaveLength(1);
   });
   it("splits highlight", () => {
@@ -113,8 +113,8 @@ describe("new agent", () => {
     expect(worktreePath(undefined, "t")).toBe("");
   });
   it("cli preview", () => {
-    expect(cliPreview(null, false, "")).toBe("hd run -- (shell)");
-    expect(cliPreview("vps", true, "claude")).toBe("hd run --on vps --worktree <task> -- claude");
+    expect(cliPreview(null, false, "")).toBe("dr run -- (shell)");
+    expect(cliPreview("vps", true, "claude")).toBe("dr run --on vps --worktree <task> -- claude");
   });
   it("create params: machine, worktree task, split placement", () => {
     const base = { command: "claude", cwd: " /w ", name: " ", kind: "claude", machine: null, worktree: false, place: "tab" as const };

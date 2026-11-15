@@ -15,7 +15,7 @@ const TABS: [string, IconName, string][] = [
 ];
 const MORE: [string, IconName, string][] = [
   ["tree", "tree", "Agent tree"], ["machines", "server", "Machines"], ["settings", "gear", "Settings"],
-  ["server", "server", "herd-server"], ["search", "search", "Jump to a terminal"], ["palette", "keyboard", "Command palette"],
+  ["server", "server", "drover-server"], ["search", "search", "Jump to a terminal"], ["palette", "keyboard", "Command palette"],
   ["help", "keyboard", "Keyboard shortcuts"],
 ];
 const VIEWS_IN_MORE = new Set(["tree", "machines", "settings", "server"]);

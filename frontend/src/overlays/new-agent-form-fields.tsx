@@ -46,7 +46,7 @@ export function WorktreeBox({ checked, disabled, info, name, kind, onChange }: {
     <div className="box">
       <label className="ck"><input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />Work in a new git worktree</label>
       <div className="na-wt" hidden={!checked || !info?.is_repo}>
-        branch <span className="mono ac">hd/{slug}</span> from <span className="mono">{info?.branch || "HEAD"}</span> → <span className="mono">{worktreePath(info?.root, slug)}</span>
+        branch <span className="mono ac">dr/{slug}</span> from <span className="mono">{info?.branch || "HEAD"}</span> → <span className="mono">{worktreePath(info?.root, slug)}</span>
       </div>
     </div>
   );

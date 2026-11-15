@@ -21,8 +21,8 @@ export default function MachinesView() {
         <LocalCard spaces={spaces} agents={agents} />
         {(machines || []).map((m) => <MachineCard key={m.alias} m={m} />)}
         <p className="meta" style={{ gridColumn: "1 / -1", padding: "8px 4px", lineHeight: 1.6, margin: 0 }}>
-          Phone: with Tailscale on both devices, run `hd server stop` then `hd server run --listen &lt;tailscale-ip&gt;`,
-          {" "}and open the link from `hd server url` on the phone. Or SSH-tunnel the port. Keep that link private.
+          Phone: with Tailscale on both devices, run `dr server stop` then `dr server run --listen &lt;tailscale-ip&gt;`,
+          {" "}and open the link from `dr server url` on the phone. Or SSH-tunnel the port. Keep that link private.
         </p>
       </div>
       <MachineAddForm />

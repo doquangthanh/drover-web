@@ -15,7 +15,7 @@ export function SettingsFilePanel({ file, errors, marker, withTest, onSaved }: P
   const save = async () => {
     try {
       await conn.rpc("settings.write", { name: file.name, text: ref.current?.value ?? "" });
-      toast(`Saved ${file.name}`, "herd reloads it within 2 seconds.");
+      toast(`Saved ${file.name}`, "Drover reloads it within 2 seconds.");
       onSaved();
     } catch (e) { errorToast(e); }
   };

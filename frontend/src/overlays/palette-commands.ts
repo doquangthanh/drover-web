@@ -27,7 +27,7 @@ export const BASE_COMMANDS: PaletteCommand[] = [
   ["Go to", "Changes and worktrees", "changes", "Ctrl A w", "branch"],
   ["Go to", "Machines", "machines", "Ctrl A m", "server"],
   ["Go to", "Settings", "settings", "Ctrl A .", "gear"],
-  ["Go to", "herd-server", "server", "Ctrl A D", "server"],
+  ["Go to", "drover-server", "server", "Ctrl A D", "server"],
   ["Go to", "Keyboard shortcuts", "help", "Ctrl A ?", "keyboard"],
   ["System", "Send a test notification", "testNotify", "", "inbox"],
 ];

@@ -14,6 +14,6 @@ describe("shortPath", () => {
   it("keeps short paths", () => expect(shortPath("/a/b/c")).toBe("/a/b/c"));
   it("abbreviates long and windows paths", () => {
     expect(shortPath("/a/b/c/d")).toBe("…/c/d");
-    expect(shortPath("C:\\Users\\me\\proj\\herd")).toBe("…/proj/herd");
+    expect(shortPath("C:\\Users\\me\\proj\\drover")).toBe("…/proj/drover");
   });
 });

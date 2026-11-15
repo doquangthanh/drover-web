@@ -19,7 +19,7 @@ function ThemeCard({ id, label, on }: { id: string; label: string; on: boolean }
   return (
     <button className={"tcard" + (on ? " on" : "")} onClick={() => setTheme(id)} aria-pressed={on}>
       <div className="tprev" style={vars}>
-        <div className="ptb"><Av c={p.ac} />herd<span className="grow" />shop-api</div>
+        <div className="ptb"><Av c={p.ac} />drover<span className="grow" />shop-api</div>
         <div className="pbody">
           <div className="psb"><PRow c="#24877b" t="shop-api" /><PRow c="#b9602f" t="blog" /><PRow c="#4e7fe0" t="docs" /></div>
           <div className="ptm">

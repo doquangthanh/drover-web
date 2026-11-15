@@ -16,7 +16,7 @@ function Restore({ stopped }: { stopped: StoppedLike[] }) {
     <>
       <div className="rhead">
         <div className="rt1">Pick up where you left off?</div>
-        <div className="rt2">Your computer restarted, so these agents stopped. herd can start them again and resume their sessions. Layout, tabs and worktrees are already restored.</div>
+        <div className="rt2">Your computer restarted, so these agents stopped. Drover can start them again and resume their sessions. Layout, tabs and worktrees are already restored.</div>
       </div>
       <div className="rlist">
         {stopped.map((s) => (

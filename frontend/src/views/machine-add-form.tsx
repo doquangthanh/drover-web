@@ -31,7 +31,7 @@ export function MachineAddForm() {
     } catch (e) { setLog({ kind: "error", text: (e as Error).message }); }
   };
   const add = async () => {
-    setLog({ kind: "busy", text: install ? "Installing hd and connecting…" : "Adding…" });
+    setLog({ kind: "busy", text: install ? "Installing dr and connecting…" : "Adding…" });
     try {
       await conn.rpc("machine.add", { ...params(), install });
       toast(`Added ${alias.trim()}`);
@@ -53,15 +53,15 @@ export function MachineAddForm() {
             <input className="in mono" id="m-k" placeholder="Use ssh-agent / default keys" value={key} onChange={(e) => setKey(e.target.value)} />
           </Field></div>
         </div>
-        <label className="ck"><input type="checkbox" checked={install} onChange={(e) => setInstall(e.target.checked)} />Install hd there if missing (Linux/macOS)</label>
-        <div className="meta">Host keys are checked against known_hosts. The daemon there only listens on 127.0.0.1; herd reaches it through the SSH tunnel.</div>
+        <label className="ck"><input type="checkbox" checked={install} onChange={(e) => setInstall(e.target.checked)} />Install dr there if missing (Linux/macOS)</label>
+        <div className="meta">Host keys are checked against known_hosts. The daemon there only listens on 127.0.0.1; Drover reaches it through the SSH tunnel.</div>
         <div className="box" hidden={!log}>
           {log?.kind === "busy" ? <div className="row"><span className="spin" />{log.text}</div> : null}
           {log?.kind === "steps" ? <>{log.steps.map((s, i) => <div key={i}>{"✓ " + s}</div>)}{log.error ? <div className="errtext">{log.error}</div> : null}</> : null}
           {log?.kind === "error" ? <div className="errtext">{log.text}</div> : null}
         </div>
         <span className="grow" />
-        <div className="mono meta">hd machine add &lt;name&gt; &lt;ssh target&gt;</div>
+        <div className="mono meta">dr machine add &lt;name&gt; &lt;ssh target&gt;</div>
         <div className="row" style={{ justifyContent: "flex-end" }}>
           <button className="btn" onClick={test}>Test only</button><button className="btn pri" onClick={add}>Add</button>
         </div>

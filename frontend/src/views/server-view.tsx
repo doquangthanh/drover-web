@@ -1,4 +1,4 @@
-// herd-server status: process, clients, config problems. (The restore dialog lives with the overlays.)
+// drover-server status: process, clients, config problems. (The restore dialog lives with the overlays.)
 import { useEffect } from "react";
 import { conn } from "../core/connection";
 import { errorToast } from "../core/toast-store";
@@ -37,7 +37,7 @@ export default function ServerView() {
       <div className="bx">
         <div className="bh">Status</div>
         <Kv rows={[
-          ["Process", `pid ${info.pid} · hd ${info.version}`, true], ["Listening", `127.0.0.1:${info.port} (this machine only)`, true],
+          ["Process", `pid ${info.pid} · dr ${info.version}`, true], ["Listening", `127.0.0.1:${info.port} (this machine only)`, true],
           ["Session file", `session.json · ${info.session_saved ? "saved" : "not saved yet"}`, true],
           ["Config", info.config_dir, true], ["Agents", counts],
         ]} />

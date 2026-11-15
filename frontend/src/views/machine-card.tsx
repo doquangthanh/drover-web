@@ -31,7 +31,7 @@ export function MachineCard({ m }: { m: Machine }) {
     <div className="mc">
       <div className="top"><Icon name="server" /><b className="grow">{m.alias}</b><StatusPill m={m} /></div>
       {on ? (
-        <div className="st"><span>{`hd ${version || "?"}`}</span><span>{`${(snap.spaces || []).length} spaces`}</span><span>{`${panes.length} agents`}</span></div>
+        <div className="st"><span>{`dr ${version || "?"}`}</span><span>{`${(snap.spaces || []).length} spaces`}</span><span>{`${panes.length} agents`}</span></div>
       ) : (
         <div className="st">{retry ? <span>{`retry in ${retry}s`}</span> : null}</div>
       )}

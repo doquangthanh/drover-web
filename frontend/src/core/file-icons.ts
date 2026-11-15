@@ -22,7 +22,7 @@ export type FileIconSpec =
   | { type: "img"; src: string }
   | { type: "badge"; label: string; background: string };
 
-const KEY = "herd-file-icons";
+const KEY = "drover-file-icons";
 const listeners = new Set<() => void>();
 let serverSet = "material";
 let table: MaterialTable | null = null; // Material lookup, loaded on first use

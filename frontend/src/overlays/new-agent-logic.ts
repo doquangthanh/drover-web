@@ -24,9 +24,9 @@ export function worktreePath(root: string | undefined, slug: string): string {
   return r ? `${r}-wt/${slug}` : "";
 }
 
-/** The `hd run` equivalent shown in the footer. */
+/** The `dr run` equivalent shown in the footer. */
 export function cliPreview(machine: string | null, worktree: boolean, command: string): string {
-  return `hd run${machine ? " --on " + machine : ""}${worktree ? " --worktree <task>" : ""} -- ${command || "(shell)"}`;
+  return `dr run${machine ? " --on " + machine : ""}${worktree ? " --worktree <task>" : ""} -- ${command || "(shell)"}`;
 }
 
 export type CreateParams = {

@@ -12,7 +12,7 @@ export function UpdatePanel() {
   const [fail, setFail] = useState<string | null>(null);
 
   const install = async () => {
-    if (!data || !window.confirm("Update herd now? The server restarts, so running agents stop (the session can be restored).")) return;
+    if (!data || !window.confirm("Update Drover now? The server restarts, so running agents stop (the session can be restored).")) return;
     setBusy(true); setFail(null);
     try { await conn.rpc("update.apply", { tag: data.tag }); setDone(true); }
     catch (e) { setFail((e as Error).message); setBusy(false); }
@@ -23,7 +23,7 @@ export function UpdatePanel() {
       <div className="alab">UPDATES</div>
       <p style={{ margin: "8px 0" }}>Installed: <span className="mono">v{data?.current ?? "…"}</span></p>
       {error && !data ? <p className="errtext">{error}</p> : null}
-      {data && !data.available ? <p style={{ color: "var(--done)" }}>✓ herd is up to date{data.latest ? ` (latest: v${data.latest})` : ""}</p> : null}
+      {data && !data.available ? <p style={{ color: "var(--done)" }}>✓ Drover is up to date{data.latest ? ` (latest: v${data.latest})` : ""}</p> : null}
       {data?.available ? (
         <>
           <p>New version <span className="mono">v{data.latest}</span> is available. <a href={data.url} target="_blank" rel="noreferrer">Release notes</a></p>

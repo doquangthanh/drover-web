@@ -1,12 +1,12 @@
-// WebSocket link to the herd daemon: RPC calls, events, pane output. Reconnects automatically.
+// WebSocket link to the drover daemon: RPC calls, events, pane output. Reconnects automatically.
 import type { ServerMessage } from "./protocol-types";
 
 function readToken(): string {
   const params = new URLSearchParams(location.search);
   let token = params.get("token");
   try {
-    if (token) sessionStorage.setItem("herd-token", token);
-    else token = sessionStorage.getItem("herd-token");
+    if (token) sessionStorage.setItem("drover-token", token);
+    else token = sessionStorage.getItem("drover-token");
   } catch { /* storage may be blocked; keep URL token */ }
   if (params.has("token")) history.replaceState(null, "", location.pathname);
   return token || "";
@@ -67,7 +67,7 @@ export class Connection {
   rpc<T = any>(method: string, params: Record<string, unknown> = {}): Promise<T> {
     const id = this.nextId++;
     return new Promise<T>((resolve, reject) => {
-      if (!this.connected) return reject(new Error("not connected to herd-server"));
+      if (!this.connected) return reject(new Error("not connected to drover-server"));
       this.pending.set(id, { resolve: resolve as (v: unknown) => void, reject });
       this.send({ t: "rpc", id, method, params });
     });

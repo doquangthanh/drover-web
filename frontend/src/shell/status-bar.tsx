@@ -22,7 +22,7 @@ export function StatusBar() {
     <HostPortal id="statusbar">
       <span className="row" style={{ gap: 6 }}>
         <span className={`dot ${connected ? "ok" : "bad"}`} />
-        {connected ? "herd-server up" : "reconnecting…"}
+        {connected ? "drover-server up" : "reconnecting…"}
       </span>
       <span>{`${machines.length ? `${up} of ${1 + machines.length} machines` : "This computer"} · ${spaceCount} spaces · ${paneCount} agents`}</span>
       {blocked ? <span className="blocked">{`${blocked} need you`}</span> : null}

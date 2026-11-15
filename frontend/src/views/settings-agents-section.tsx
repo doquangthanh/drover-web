@@ -52,7 +52,7 @@ export function AgentsMain({ rule, files, errors, onChanged }: MainProps) {
     <div className="smain">
       {own ? <SettingsFilePanel file={own} errors={errors} onSaved={onChanged} /> : (
         <div className="panel" style={{ padding: 12, gap: 8 }}>
-          <div className="meta">{rule ? `${rule} uses herd's built-in rules.` : "No agents yet."}</div>
+          <div className="meta">{rule ? `${rule} uses Drover's built-in rules.` : "No agents yet."}</div>
           {rule ? <button className="btn" style={{ alignSelf: "flex-start" }} onClick={create}>{`Create rules/${rule}.toml to override them`}</button> : null}
         </div>
       )}

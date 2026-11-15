@@ -1,5 +1,5 @@
 {
-  "name": "herd-frontend",
+  "name": "drover-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",

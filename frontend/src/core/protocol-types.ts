@@ -1,4 +1,4 @@
-// Wire shapes of the herd daemon (`combined_state()` + /ws messages). Fields are optional where the daemon may omit them.
+// Wire shapes of the drover daemon (`combined_state()` + /ws messages). Fields are optional where the daemon may omit them.
 
 export type PaneState = "blocked" | "done" | "working" | "idle" | "exited" | string;
 

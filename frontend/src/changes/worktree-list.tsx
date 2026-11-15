@@ -57,7 +57,7 @@ export function WorktreeList({ trees, mainTree, current, path, confirm, machine,
       {confirm && isOther ? (
         <div className="warnbox" style={{ margin: 6 }}>
           <b>{`Remove “${agentIn(current.path)?.name || current.branch}”? `}</b>
-          {current.changes ? `It has ${current.changes} uncommitted files, so herd won't delete it unless you force it.` : `${current.path} will be deleted.`}
+          {current.changes ? `It has ${current.changes} uncommitted files, so Drover won't delete it unless you force it.` : `${current.path} will be deleted.`}
           <div className="row" style={{ marginTop: 8 }}>
             <button className={"btn" + (current.changes ? " danger" : "")} onClick={() => actions.removeCurrent(!!current.changes)}>{current.changes ? "Remove anyway" : "Remove"}</button>
             <button className="btn" onClick={() => patchChangesUi({ confirm: false })}>Cancel</button>

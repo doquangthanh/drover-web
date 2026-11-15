@@ -36,7 +36,7 @@ export function getEditor(): Promise<Shared> {
     const applyTheme = () => editor.setTheme(aceThemeFor(activeTheme()));
     applyTheme();
     onThemeChange(applyTheme);
-    editor.commands.addCommand({ name: "herdSave", bindKey: { win: "Ctrl-S", mac: "Command-S" }, exec: () => saveHandler?.() });
+    editor.commands.addCommand({ name: "droverSave", bindKey: { win: "Ctrl-S", mac: "Command-S" }, exec: () => saveHandler?.() });
     shared = { el, editor };
     return shared;
   }).catch((e) => { creating = null; throw e; });

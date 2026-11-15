@@ -55,7 +55,7 @@ export default function SettingsView() {
           <button key={id} className={"nav" + (id === sec[0] ? " on" : "")} onClick={() => useSettingsNav.setState({ section: id })}>{label}</button>
         ))}
         <span className="grow" />
-        <div className="snote">Every setting is a file. <span className="mono">AGENTS.md</span> in the folder explains them, so an agent can change herd for you.</div>
+        <div className="snote">Every setting is a file. <span className="mono">AGENTS.md</span> in the folder explains them, so an agent can change Drover for you.</div>
       </div>
       {sec[0] === "agents" ? (
         <RulesColumn rules={rules} files={data.files} selected={ruleId} onSelect={(id) => useSettingsNav.setState({ rule: id })} onChanged={changed} />

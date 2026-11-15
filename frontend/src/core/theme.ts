@@ -34,7 +34,7 @@ const TERM: Record<string, ITheme> = {
   },
 };
 
-const KEY = "herd-theme";
+const KEY = "drover-theme";
 const listeners = new Set<() => void>();
 let serverTheme = "dark";
 let current = "dark";

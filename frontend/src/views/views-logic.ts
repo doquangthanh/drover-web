@@ -1,7 +1,7 @@
 // Pure helpers of the alt views (inbox filtering, agent tree flattening, labels). No React, easy to unit test.
 import type { Pane } from "../core/protocol-types";
 
-/** Panes carry the agent that started them (`hd run`) as `parent`. */
+/** Panes carry the agent that started them (`dr run`) as `parent`. */
 export type AgentPane = Pane & { parent?: string };
 
 export interface PolicyPending { id: string; source: string; target: string; text: string }

@@ -1,4 +1,4 @@
-// Agent tree: who started whom, plus the messages they exchanged (hd run / wait / send / read).
+// Agent tree: who started whom, plus the messages they exchanged (dr run / wait / send / read).
 import { useEffect, useMemo } from "react";
 import { create } from "zustand";
 import { allActions } from "../actions/build-actions";
@@ -26,7 +26,7 @@ function Messages({ selected }: { selected: string }) {
   const name = (id?: string) => paneById.get(id || "")?.name || id || "you";
   if (error) return <div className="errtext">{error}</div>;
   if (!data) return <div className="meta">Loading…</div>;
-  if (!data.length) return <div className="meta">No agent-to-agent activity yet. Agents use `hd run`, `hd wait`, `hd send`.</div>;
+  if (!data.length) return <div className="meta">No agent-to-agent activity yet. Agents use `dr run`, `dr wait`, `dr send`.</div>;
   return <>{data.slice().reverse().map((m, i) => (
     <div className="msg" key={i}>
       <span className="meta mono">{new Date(m.at * 1000).toLocaleTimeString().slice(0, 5)}</span>

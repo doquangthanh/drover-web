@@ -8,13 +8,13 @@ const proxied = { target: url, changeOrigin: false };
 export default defineConfig(({ command }) => {
   if (command === "serve" && !process.env.VITEST) { // vitest also runs as "serve": keep the token out of test output
     // The token is only logged to the terminal, never written to a file.
-    console.log(`herd dev proxy -> ${url}\n  open http://localhost:5173/ui/${token ? `?token=${token}` : ""}`);
+    console.log(`drover dev proxy -> ${url}\n  open http://localhost:5173/ui/${token ? `?token=${token}` : ""}`);
   }
   return {
     base: "/ui/",
     plugins: [react()],
     build: {
-      outDir: "../src/herd/web_dist",
+      outDir: "../src/drover/web_dist",
       emptyOutDir: true,
       target: ["es2020", "safari15"],
     },
