@@ -55,7 +55,7 @@ export function TopbarTabs() {
         <TopTab key={t.id} tab={t} on={t.id === tabId}
           focused={(t.focused ? paneById.get(t.focused) : undefined) || panes.find((p) => p.tab_id === t.id)} />
       ))}
-      <button className="pb" aria-label="New agent" title="New agent (Ctrl+A c)" onClick={() => allActions.newAgent()}>+</button>
+      <button className="pb" aria-label="New terminal" title="New terminal (Ctrl+A c)" onClick={() => allActions.newAgent()}>+</button>
       <span className="grow" />
       {zoomed ? <span className="zoomed desk">Zoomed · Ctrl A z</span> : null}
       <button className="pb wide" onClick={() => allActions.splitRight()} title="Split right (Ctrl+A %)"><Icon name="split" /></button>

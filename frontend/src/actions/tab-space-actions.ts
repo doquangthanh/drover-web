@@ -1,6 +1,6 @@
 // Tab and space actions: select, create, close, rename, cycle.
 import { confirmBox, promptText } from "../overlays/modal-dialogs";
-import { panesOf, rpc, rpcQuiet, setUi, space, state, tab, tabsOf, ui, withMachine } from "./action-helpers";
+import { pane, panesOf, rpc, rpcQuiet, setUi, space, state, tab, tabsOf, ui, withMachine } from "./action-helpers";
 import { renameInPlace, useRenaming } from "../core/inline-rename-store";
 import { hooks } from "./feature-hooks";
 import { focusPane } from "./pane-actions";
@@ -17,9 +17,12 @@ function selectTab(tabId: string): void {
   setTimeout(() => { if (!useRenaming.getState().key) hooks.focusTerminal(ui().focusedPane); }, 30);
 }
 
-/** Like herdr: no pickers. A fresh space with a shell in the home folder; running claude/codex/... there makes it an agent. */
+/** Like herdr: no pickers. A fresh space with a shell in the folder the focused pane is in (else home);
+ *  running claude/codex/... there makes it an agent. */
 async function newSpace(machine?: string | null): Promise<void> {
-  const r = await rpcQuiet("space.create", machine ? { new: true, machine } : { new: true });
+  const from = ui().focusedPane;
+  const local = !machine && from && !space(pane(from)?.space_id || "")?.machine;
+  const r = await rpcQuiet("space.create", machine ? { new: true, machine } : local ? { new: true, from } : { new: true });
   if (r) focusPane(r.pane.id);
 }
 

@@ -1,6 +1,7 @@
 // View switching, sidebar toggle and the overlay launchers (palette, search, new agent, shortcut list).
 import { setUi, ui } from "./action-helpers";
 import { hooks } from "./feature-hooks";
+import { tabSpaceActions } from "./tab-space-actions";
 
 /** Switch the main area; leaving the workspace also leaves the phone's full-screen terminal. */
 function show(view: string): void {
@@ -10,7 +11,8 @@ function show(view: string): void {
 export const viewActions = {
   show,
   toggleSidebar: () => setUi({ sidebar: !ui().sidebar }),
-  newAgent: (opts: { worktree?: boolean } = {}) => hooks.openNewAgent(opts),
+  // Like herdr: no agent picker. A new terminal in the current space (or a new space); run claude/codex/... in it.
+  newAgent: (opts: { worktree?: boolean } = {}) => (opts.worktree ? hooks.openNewAgent(opts) : tabSpaceActions.newTab()),
   newAgentWorktree: () => hooks.openNewAgent({ worktree: true }),
   palette: () => hooks.openPalette(),
   search: () => hooks.openSearch(),

@@ -28,7 +28,7 @@ export const SidebarSpaceRow = memo(function SidebarSpaceRow({ space, on }: { sp
       }}
       onContextMenu={(e) => openContextMenu(e, [
         { label: "Rename space…", hint: "F2", run: () => void allActions.renameSpace(space.id) },
-        { label: "New agent here", run: () => { allActions.selectSpace(space.id); allActions.newAgent(); } },
+        { label: "New terminal here", run: () => { allActions.selectSpace(space.id); allActions.newAgent(); } },
         { label: "Close space", hint: "Del", danger: true, run: () => void allActions.closeSpace(space.id) },
       ])}>
       <SpaceAvatar space={space} />

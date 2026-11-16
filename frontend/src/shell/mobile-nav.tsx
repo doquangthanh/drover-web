@@ -74,7 +74,7 @@ export function MobileNav() {
           </button>
         ))}
       </nav>
-      <button id="fab" aria-label="New agent" onClick={() => allActions.newAgent()}><Icon name="plus" />New agent</button>
+      <button id="fab" aria-label="New terminal" onClick={() => allActions.newAgent()}><Icon name="plus" />New terminal</button>
     </>,
     document.body,
   );

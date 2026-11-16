@@ -4,7 +4,7 @@ import { useStore } from "./store";
 type ShortcutGroup = [string, [string, string, string][]];
 
 export const SHORTCUTS: ShortcutGroup[] = [
-  ["Agents", [["c", "New agent", "newAgent"], ["C", "New agent + worktree", "newAgentWorktree"],
+  ["Agents", [["c", "New terminal", "newAgent"], ["C", "New agent + worktree", "newAgentWorktree"],
     ["n", "Next that needs you", "nextBlocked"], ["N", "Next that's done", "nextDone"],
     ["a", "Answer prompt (then 1–3)", "answer"], ["e", "Send Esc", "sendEsc"],
     ["B", "Send to selected", "broadcast"], ["r", "Restart + resume", "restart"], ["o", "Agent tree", "tree"]]],
@@ -50,7 +50,7 @@ export interface KeyLike {
 /** VS Code style shortcuts: one chord, no prefix. [label shown in the sheet, chord, action] */
 export const DIRECT_SHORTCUTS: [string, string, string][] = [
   ["Ctrl+Shift+P", "Command palette", "palette"], ["F1", "Command palette", "palette"], ["Ctrl+P", "Jump to a terminal", "search"],
-  ["Ctrl+B", "Toggle sidebar", "toggleSidebar"], ["Ctrl+N", "New agent", "newAgent"], ["Ctrl+Shift+`", "New tab", "newTab"],
+  ["Ctrl+B", "Toggle sidebar", "toggleSidebar"], ["Ctrl+N", "New terminal", "newAgent"], ["Ctrl+Shift+`", "New tab", "newTab"],
   ["Ctrl+\\", "Split right", "splitRight"], ["Ctrl+Shift+\\", "Split down", "splitDown"],
   ["F2", "Rename agent (sidebar: Delete closes)", "rename"], ["Ctrl+W", "Close tab", "closeCurrentTab"], ["Ctrl+Shift+W", "Close pane", "closePane"],
   ["Ctrl+Tab", "Next tab", "nextTab"], ["Ctrl+Shift+Tab", "Previous tab", "prevTab"], ["Ctrl+1–9", "Go to tab 1–9", "gotoTab"],

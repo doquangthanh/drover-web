@@ -2,7 +2,7 @@
 export type PaletteCommand = [group: string, label: string, id: string, keys: string, icon: string];
 
 export const BASE_COMMANDS: PaletteCommand[] = [
-  ["Create", "New agent…", "newAgent", "Ctrl A c", "plus"],
+  ["Create", "New terminal", "newAgent", "Ctrl A c", "plus"],
   ["Create", "New agent in a fresh worktree…", "newAgentWorktree", "Ctrl A C", "branch"],
   ["Create", "New tab", "newTab", "Ctrl A t", "tab"],
   ["Create", "New space", "newSpace", "Ctrl A S", "folder"],
