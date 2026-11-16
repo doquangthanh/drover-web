@@ -20,10 +20,12 @@ export interface StoreState extends Derived {
   raw: RawState;
   ui: UiState;
   connected: boolean;
+  updating: boolean; // an in-app update is installing: show the loading overlay until the page reloads
   setRaw: (raw: RawState) => void;
   upsertPane: (pane: Pane) => void;
   setUi: (patch: Partial<UiState>) => void;
   setConnected: (up: boolean) => void;
+  setUpdating: (on: boolean) => void;
 }
 
 export const INITIAL_UI: UiState = {
@@ -51,6 +53,7 @@ export const useStore = create<StoreState>((set, get) => ({
   raw: EMPTY_RAW,
   ui: INITIAL_UI,
   connected: false,
+  updating: false,
 
   setRaw(next) {
     const prev = get();
@@ -78,4 +81,5 @@ export const useStore = create<StoreState>((set, get) => ({
 
   setUi(patch) { set({ ui: { ...get().ui, ...patch } }); },
   setConnected(connected) { set({ connected }); },
+  setUpdating(updating) { set({ updating }); },
 }));

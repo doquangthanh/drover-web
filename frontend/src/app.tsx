@@ -8,6 +8,7 @@ import { MobileNav } from "./shell/mobile-nav";
 import { Sidebar } from "./shell/sidebar";
 import { StatusBar } from "./shell/status-bar";
 import { ContextMenu } from "./shell/context-menu";
+import { UpdateOverlay } from "./shell/update-overlay";
 import { Toasts } from "./shell/toasts";
 import { Topbar } from "./shell/topbar";
 import { viewFor } from "./views/view-registry";
@@ -44,6 +45,7 @@ export function App() {
       <MobileNav />
       <Toasts />
       <ConnBanner />
+      <UpdateOverlay />
       <ModalHost />
       <ContextMenu />
     </>

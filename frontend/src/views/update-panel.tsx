@@ -1,6 +1,7 @@
 // Settings > Updates: compare against the latest GitHub release and install it with one click.
 import { useState } from "react";
 import { conn } from "../core/connection";
+import { useStore } from "../core/store";
 import { useRpc } from "./use-rpc";
 
 interface UpdateInfo { current: string; latest: string; tag: string; url: string; notes: string; available: boolean; installable: boolean }
@@ -13,9 +14,9 @@ export function UpdatePanel() {
 
   const install = async () => {
     if (!data || !window.confirm("Update Drover now? The server restarts, so running agents stop (the session can be restored).")) return;
-    setBusy(true); setFail(null);
+    setBusy(true); setFail(null); useStore.getState().setUpdating(true);
     try { await conn.rpc("update.apply", { tag: data.tag }); setDone(true); }
-    catch (e) { setFail((e as Error).message); setBusy(false); }
+    catch (e) { setFail((e as Error).message); setBusy(false); useStore.getState().setUpdating(false); }
   };
 
   return (
