@@ -26,12 +26,14 @@ export class Connection {
   private outputHandlers = new Map<string, OutputHandler>(); // pane id -> fn(data, isReplay)
   private attached = new Set<string>();
   private ws: WebSocket | null = null;
+  private wasDown = false;
 
   connect(): void {
     const proto = location.protocol === "https:" ? "wss" : "ws";
     const ws = new WebSocket(`${proto}://${location.host}/ws?token=${encodeURIComponent(this.token)}&label=ui`);
     this.ws = ws;
     ws.onopen = () => {
+      if (this.wasDown) { location.reload(); return; } // daemon restarted (update): load the new UI build
       this.connected = true;
       this.onConnection(true);
       for (const pane of this.attached) this.send({ t: "attach", pane });
@@ -39,6 +41,7 @@ export class Connection {
     ws.onmessage = (ev) => this.dispatch(JSON.parse(ev.data as string) as ServerMessage);
     ws.onclose = () => {
       this.connected = false;
+      this.wasDown = true;
       this.onConnection(false);
       for (const [, p] of this.pending) p.reject(new Error("disconnected"));
       this.pending.clear();
