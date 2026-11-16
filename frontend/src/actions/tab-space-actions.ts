@@ -17,16 +17,15 @@ function selectTab(tabId: string): void {
   setTimeout(() => { if (!useRenaming.getState().key) hooks.focusTerminal(ui().focusedPane); }, 30);
 }
 
+/** Like herdr: no pickers. A fresh space with a shell in the home folder; running claude/codex/... there makes it an agent. */
 async function newSpace(machine?: string | null): Promise<void> {
-  const path = await hooks.chooseFolder(machine || null, "");
-  if (!path) return;
-  const r = await rpcQuiet("space.create", machine ? { cwd: path, machine } : { cwd: path });
+  const r = await rpcQuiet("space.create", machine ? { new: true, machine } : { new: true });
   if (r) focusPane(r.pane.id);
 }
 
 function newTab(): void {
   const s = space(ui().spaceId);
-  if (!s) return hooks.openNewAgent({});
+  if (!s) return void newSpace(null);
   rpcQuiet("pane.create", withMachine({ command: "", cwd: s.cwd }, s)).then((p) => p && focusPane(p.id));
 }
 

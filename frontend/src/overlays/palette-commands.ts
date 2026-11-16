@@ -5,7 +5,7 @@ export const BASE_COMMANDS: PaletteCommand[] = [
   ["Create", "New agent…", "newAgent", "Ctrl A c", "plus"],
   ["Create", "New agent in a fresh worktree…", "newAgentWorktree", "Ctrl A C", "branch"],
   ["Create", "New tab", "newTab", "Ctrl A t", "tab"],
-  ["Create", "New space from folder…", "newSpace", "Ctrl A S", "folder"],
+  ["Create", "New space", "newSpace", "Ctrl A S", "folder"],
   ["Create", "New space on machine…", "newSpaceOn", "", "server"],
   ["Agents", "Jump to next agent that needs you", "nextBlocked", "Ctrl A n", "dot"],
   ["Agents", "Jump to next finished agent", "nextDone", "Ctrl A N", "inbox"],

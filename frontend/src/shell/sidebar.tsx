@@ -32,7 +32,7 @@ function SpacesSection() {
     <div className="sb-half">
       <div className="shead">
         <span>Spaces</span>
-        <button className="ibtn" aria-label="Open a folder as a space" onClick={() => void allActions.newSpace(null)}>+</button>
+        <button className="ibtn" aria-label="New space" onClick={() => void allActions.newSpace(null)}>+</button>
       </div>
       <div className="slist">
         <MachineHeader label="This computer" icon="monitor" status="local" onNew={() => void allActions.newSpace(null)} />
@@ -61,7 +61,8 @@ function AgentsSection() {
     const groups = spaces.map((space) => {
       const own = space.machine && space.machine !== "local" ? [] : chats.filter((c) => sameDir(c.cwd, space.cwd));
       own.forEach((c) => used.add(c.id));
-      return { space, panes: sortedPanesOf(panes, space.id), chats: own };
+      // A plain shell is not an agent yet: it shows up once claude/codex/... runs in it (detected from the title).
+      return { space, panes: sortedPanesOf(panes, space.id).filter((p) => p.kind !== "shell"), chats: own };
     }).filter((g) => g.panes.length || g.chats.length);
     return { groups, loose: chats.filter((c) => !used.has(c.id)) };
   }, [spaces, panes, chats]);
@@ -80,7 +81,7 @@ function AgentsSection() {
           </Fragment>
         ))}
         <ChatRowList chats={loose} />
-        {!panes.length && !chats.length ?<div className="empty-hint">No agents yet. Ctrl+A C starts one.</div> : null}
+        {!groups.length && !loose.length ? <div className="empty-hint">No agents yet. Run claude, codex… in a terminal.</div> : null}
       </div>
     </div>
   );
