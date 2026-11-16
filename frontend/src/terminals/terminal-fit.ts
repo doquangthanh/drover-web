@@ -3,7 +3,7 @@ import { conn } from "../core/connection";
 import type { TermEntry } from "./terminal-entry";
 import { attachTouchScroll } from "./terminal-touch-scroll";
 
-export const FONT = '"JetBrains Mono", ui-monospace, Consolas, monospace';
+export const FONT = 'ui-monospace, monospace';
 
 /** xterm measures a character once. If the web font arrives after that, the cells are wider than measured and the grid
  *  overflows the screen (text cut off on the right/bottom). Re-measure when the font is ready. */

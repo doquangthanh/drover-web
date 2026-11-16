@@ -8,7 +8,7 @@
   --done-rgb: 76 196 140; --error-rgb: 232 132 140; --working-rgb: 118 168 255; --head: #1b1d21; --add: #a6bd91; --rem: #dc8c95; --on-accent: #101114;
   --yellow: #d8be87;
   --ui: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --mono: ui-monospace, monospace;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--canvas); color: var(--fg); overflow: hidden; }
