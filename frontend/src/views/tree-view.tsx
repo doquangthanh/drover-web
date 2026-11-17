@@ -37,7 +37,7 @@ function Messages({ messages, name }: { messages: AgentMessage[]; name: (id?: st
 
 function PolicyPanel({ o }: { o: Orchestration }) {
   const items: [string, unknown][] = [
-    ["Agents may answer prompts", o.agents_may_answer_permission_prompts ?? "ask-user"], ["Max agents", o.max_panes ?? "?"],
+    ["Agents may answer prompts", o.agents_may_answer_permission_prompts ?? "ask-user"], ["Max agents", o.max_panes ? o.max_panes : "no limit"],
     ["Max depth", o.max_depth ?? "?"], ["Stop helpers with parent", !!o.kill_children_on_parent_exit],
   ];
   return (
