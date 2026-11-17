@@ -20,11 +20,18 @@ export function applyTerminalFont(entry: TermEntry): void {
   }).catch(() => {});
 }
 
+/** Whether to use xterm's WebGL renderer, or keep the DOM one.
+ *  - Touch devices keep DOM: with WebGL the cell size changes after the first fit, so the grid came out wider and taller
+ *    than the screen (text cut off on the right and bottom), and iOS drops WebGL contexts in the background.
+ *  - The Linux desktop window (Qt WebEngine) keeps DOM: there WebGL draws every glyph in a small fallback font, whatever
+ *    the terminal font, inside correctly sized cells, so text looks letter-spaced ("k h a c  v ớ i"). */
+export function useWebglRenderer(userAgent: string, coarsePointer: boolean): boolean {
+  return !coarsePointer && !/QtWebEngine\//.test(userAgent);
+}
+
 /** GPU renderer: far smoother than the default DOM renderer. Loaded on demand (own chunk); falls back silently. */
 function enableWebgl(entry: TermEntry): void {
-  // Touch devices keep the DOM renderer: with WebGL the cell size changes after the first fit, so the grid came out wider
-  // and taller than the screen (text cut off on the right and bottom), and iOS drops WebGL contexts in the background.
-  if (matchMedia("(pointer: coarse)").matches) return;
+  if (!useWebglRenderer(navigator.userAgent, matchMedia("(pointer: coarse)").matches)) return;
   import("@xterm/addon-webgl").then(({ WebglAddon }) => {
     try {
       const gl = new WebglAddon();
