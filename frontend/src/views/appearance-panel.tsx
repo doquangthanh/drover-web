@@ -3,6 +3,7 @@ import { useSyncExternalStore, type CSSProperties } from "react";
 import { ICON_SETS, chosenIconSet, onIconSetChange, setIconSet } from "../core/file-icons";
 import { THEMES, chosenTheme, onThemeChange, setTheme } from "../core/theme";
 import { FileIcon } from "../files/file-icon";
+import { TerminalFontSettings } from "./terminal-font-settings";
 
 const PREVIEW: Record<string, { cv: string; ch: string; cp: string; fg: string; mu: string; ac: string; bd: string; ok: string; note: string }> = {
   dark: { cv: "#131518", ch: "#101114", cp: "#17191d", fg: "#eeeeef", mu: "#98999b", ac: "#96b2d7", bd: "rgba(255,255,255,.1)", ok: "#a6bd91", note: "default" },
@@ -70,6 +71,7 @@ export function AppearancePanel() {
       </label>
       <div className="alab" style={{ marginTop: 22 }}>FILE ICONS</div>
       <div className="agrid">{ICON_SETS.map((s) => <IconCard key={s[0]} set={s} on={iconSet === s[0]} />)}</div>
+      <TerminalFontSettings />
       <p className="meta" style={{ lineHeight: 1.6, marginTop: 18 }}>
         In <span className="mono">settings.toml</span>: <span className="mono">theme = "light"</span> and <span className="mono">file_icons = "badge"</span>.
         {" "}A choice made in the app is kept per device (phone and desktop can differ) and wins over the file.

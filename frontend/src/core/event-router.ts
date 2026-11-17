@@ -9,6 +9,7 @@ import { maybeShowRestore } from "../overlays/restore-dialog";
 import { getActions, setPrefix } from "./keys";
 import type { Pane, RawState, StatusEvent } from "./protocol-types";
 import { useStore } from "./store";
+import { setServerTerminalFont } from "./terminal-font";
 import { setServerTheme } from "./theme";
 import { toast, type ToastTone } from "./toast-store";
 import { startUpdateNotifier } from "./update-notifier";
@@ -24,6 +25,7 @@ export function routeEvent(name: string, data: unknown): void {
     setPrefix(raw.prefix);
     setServerTheme(raw.theme);
     setServerIconSet(raw.file_icons);
+    setServerTerminalFont(raw.terminal_font);
     const { ui, tabById } = useStore.getState();
     if (!ui.focusedPane) store.setUi({ focusedPane: (ui.tabId && tabById.get(ui.tabId)?.focused) || null });
     maybeShowRestore();

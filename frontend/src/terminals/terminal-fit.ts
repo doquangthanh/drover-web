@@ -1,15 +1,21 @@
 // Sizing: debounced fit -> `pane.resize` rpc (deduped by size), font-ready refit, lazy GPU renderer.
 import { conn } from "../core/connection";
+import { chosenTerminalFont, terminalFontFamily, terminalFontSize } from "../core/terminal-font";
 import type { TermEntry } from "./terminal-entry";
 import { attachTouchScroll } from "./terminal-touch-scroll";
 
-export const FONT = 'ui-monospace, monospace';
-
-/** xterm measures a character once. If the web font arrives after that, the cells are wider than measured and the grid
- *  overflows the screen (text cut off on the right/bottom). Re-measure when the font is ready. */
-function refitWhenFontReady(entry: TermEntry): void {
-  document.fonts.load('13px "JetBrains Mono"').then(() => {
-    entry.term.options.fontFamily = FONT + ", monospace"; // a changed value makes xterm measure again
+/** Apply the chosen terminal font. xterm measures a character once; if the font arrives after that, the cells are
+ *  wider than measured and the grid overflows the screen. So re-measure once the font is loaded too. */
+export function applyTerminalFont(entry: TermEntry): void {
+  const family = terminalFontFamily();
+  const size = terminalFontSize();
+  entry.term.options.fontFamily = family;
+  entry.term.options.fontSize = size;
+  scheduleFit(entry);
+  const name = chosenTerminalFont().family;
+  if (!name) return;
+  document.fonts.load(`${size}px "${name.replace(/["\\]/g, "")}"`).then(() => {
+    entry.term.options.fontFamily = family + ", monospace"; // a changed value makes xterm measure again
     scheduleFit(entry);
   }).catch(() => {});
 }
@@ -36,7 +42,7 @@ export function scheduleFit(entry: TermEntry): void {
     entry.opened = true;
     attachTouchScroll(entry.term, entry.el, (keys) => conn.input(entry.paneId, keys));
     enableWebgl(entry);
-    refitWhenFontReady(entry);
+    applyTerminalFont(entry);
     if (entry.wantFocus) { entry.wantFocus = false; entry.term.focus(); }
   }
   clearTimeout(entry.resizeTimer);

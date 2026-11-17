@@ -8,8 +8,8 @@ import { conn } from "../core/connection";
 import { handleKey } from "../core/keys";
 import { useStore } from "../core/store";
 import { onThemeChange, termOptions, termTheme } from "../core/theme";
-import { isPhone } from "../core/viewport";
-import { FONT, scheduleFit } from "./terminal-fit";
+import { onTerminalFontChange, terminalFontFamily, terminalFontSize } from "../core/terminal-font";
+import { applyTerminalFont, scheduleFit } from "./terminal-fit";
 import type { TermEntry } from "./terminal-entry";
 
 const terms = new Map<string, TermEntry>();
@@ -21,6 +21,7 @@ function openLink(_ev: MouseEvent, uri: string): void {
   if (/^https?:\/\//i.test(uri)) window.open(uri, "_blank", "noopener,noreferrer");
 }
 onThemeChange(() => { for (const { term } of terms.values()) term.options.theme = termTheme(); });
+onTerminalFontChange(() => { for (const entry of terms.values()) if (entry.opened) applyTerminalFont(entry); });
 
 /** Idempotent: returns the existing entry (StrictMode double mounts, re-parenting). */
 export function getTerminal(paneId: string): TermEntry {
@@ -29,7 +30,7 @@ export function getTerminal(paneId: string): TermEntry {
   const el = document.createElement("div");
   el.className = "term";
   const term = new Terminal({
-    fontFamily: FONT, fontSize: isPhone() ? 12 : 13, lineHeight: 1.15,
+    fontFamily: terminalFontFamily(), fontSize: terminalFontSize(), lineHeight: 1.15,
     ...termOptions(), scrollback: 5000, allowProposedApi: true, macOptionIsMeta: true,
     linkHandler: { activate: openLink }, // OSC 8 hyperlinks (Claude Code prints these)
   });

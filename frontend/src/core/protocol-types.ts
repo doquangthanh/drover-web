@@ -68,6 +68,7 @@ export interface RawState extends Snapshot {
   prefix?: string;
   theme?: string;
   file_icons?: string;
+  terminal_font?: { family?: string; size?: number };
   [k: string]: unknown;
 }
 
