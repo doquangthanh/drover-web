@@ -10,8 +10,6 @@ interface Recognizer {
 const Recognition: (new () => Recognizer) | undefined =
   (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
-export const dictationSupported = !!Recognition;
-
 export function DictateButton({ onText }: { onText: (text: string) => void }) {
   const rec = useRef<Recognizer | null>(null);
   const [on, setOn] = useState(false);
