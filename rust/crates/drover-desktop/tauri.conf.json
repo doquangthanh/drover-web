@@ -1,0 +1,11 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Drover",
+  "identifier": "dev.drover.desktop",
+  "build": { "frontendDist": "dist" },
+  "app": {
+    "windows": [],
+    "security": { "csp": null, "capabilities": ["daemon-ui"] }
+  },
+  "bundle": { "active": false, "icon": ["icons/icon.png"] }
+}
