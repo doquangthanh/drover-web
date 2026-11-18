@@ -11,6 +11,7 @@ import { onThemeChange, termOptions, termTheme } from "../core/theme";
 import { onTerminalFontChange, terminalFontFamily, terminalFontSize } from "../core/terminal-font";
 import { applyTerminalFont, scheduleFit } from "./terminal-fit";
 import type { TermEntry } from "./terminal-entry";
+import { guardWebKitIme, webkitIme } from "./webkit-ime-guard";
 
 const terms = new Map<string, TermEntry>();
 
@@ -44,7 +45,16 @@ export function getTerminal(paneId: string): TermEntry {
   // xterm answers the shell's "who are you" query (Device Attributes) and ConPTY hands that answer to PowerShell as
   // typed text ("[?1;2c" on the prompt). The shell never needs it, so it is dropped.
   term.onData((data) => { if (!/^\x1b\[[?>][\d;]*c$/.test(data)) conn.input(paneId, data); });
+  // WebKit + ibus: committed words arrive as input events; a swallowed letter after the prefix still runs its action.
+  const imeAllows = webkitIme
+    ? guardWebKitIme(el, (data) => conn.input(paneId, data), {
+      pending: () => useStore.getState().ui.prefix,
+      run: (key, shiftKey) =>
+        handleKey({ type: "keydown", key, ctrlKey: false, shiftKey, altKey: false, preventDefault: () => {} }, paneId),
+    })
+    : () => true;
   term.attachCustomKeyEventHandler((ev) => {
+    if (!imeAllows(ev)) return false;
     // Ctrl+C / Ctrl+Shift+C copies while text is selected; with nothing selected Ctrl+C still interrupts the agent.
     if (ev.type === "keydown" && ev.ctrlKey && !ev.altKey && ev.key.toLowerCase() === "c" && term.hasSelection()) {
       copySelection(paneId);
