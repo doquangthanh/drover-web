@@ -42,4 +42,14 @@ pub fn platform() -> &'static str {
 #[tauri::command]
 pub fn set_dark_title(window: WebviewWindow, dark: bool) {
     let _ = window.set_theme(Some(if dark { Theme::Dark } else { Theme::Light }));
+    // On X11 GNOME draws the frame itself and reads the GTK theme variant, which set_theme leaves empty;
+    // GTK's prefer-dark setting makes GTK publish it (_GTK_THEME_VARIANT), as the Qt window did with xprop.
+    #[cfg(target_os = "linux")]
+    let _ = window.run_on_main_thread(move || {
+        use gtk::prelude::GtkSettingsExt;
+        if let Some(settings) = gtk::Settings::default() {
+            settings.set_gtk_application_prefer_dark_theme(dark);
+        }
+    });
 }
+

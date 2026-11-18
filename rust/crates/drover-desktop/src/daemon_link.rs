@@ -14,14 +14,13 @@ pub fn ui_url(info: &Value) -> Option<String> {
     Some(format!("http://127.0.0.1:{port}/?token={token}"))
 }
 
-/// `dr` next to this executable (installed together), else `dr` on PATH.
+/// The daemon next to this executable: `drover-server` (release bundle), else `dr` (dev build dir), else `dr` on PATH.
 fn dr_binary() -> PathBuf {
-    let name = if cfg!(windows) { "dr.exe" } else { "dr" };
-    std::env::current_exe()
-        .ok()
-        .and_then(|p| p.parent().map(|d| d.join(name)))
-        .filter(|p| p.is_file())
-        .unwrap_or_else(|| PathBuf::from(name))
+    let exe = |n: &str| if cfg!(windows) { format!("{n}.exe") } else { n.to_string() };
+    let dir = std::env::current_exe().ok().and_then(|p| p.parent().map(PathBuf::from));
+    ["drover-server", "dr"].iter()
+        .find_map(|n| dir.as_ref().map(|d| d.join(exe(n))).filter(|p| p.is_file()))
+        .unwrap_or_else(|| PathBuf::from(exe("dr")))
 }
 
 fn start_background() -> std::io::Result<()> {

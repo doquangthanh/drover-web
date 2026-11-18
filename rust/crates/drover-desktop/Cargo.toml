@@ -18,3 +18,6 @@ tauri-plugin-single-instance = "2.5.5"
 [build-dependencies]
 tauri-build = "2.7.5"
 
+# Same gtk as tauri, only to ask for the dark window frame on Linux (`set_dark_title`).
+[target.'cfg(target_os = "linux")'.dependencies]
+gtk = "=0.18.2"
