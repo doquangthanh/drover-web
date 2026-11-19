@@ -28,6 +28,7 @@ pub fn hand_over_if_needed() {
         return;
     }
     let app = default_app_dir();
+    remove_replaced_copies();
     if let Err(e) = install_if_older(&app, &tag) {
         show_error(&format!("Drover could not install itself into {}:\n{e}", app.display()));
         if !is_bundle(&app) {
@@ -42,13 +43,48 @@ pub fn hand_over_if_needed() {
     std::process::exit(run_and_wait(&target, &args));
 }
 
+/// `drover.exe.old`, `.old2`...: the one-file drover.exe that the 0.1.4x updater swapped out for this one. That
+/// Python app cleaned them on its next start; it never starts again, so do it here (best effort: one still running
+/// stays until the next launch).
+fn remove_replaced_copies() {
+    let Ok(exe) = std::env::current_exe() else { return };
+    let (Some(dir), Some(name)) = (exe.parent(), exe.file_name()) else { return };
+    let prefix = format!("{}.old", name.to_string_lossy());
+    for entry in std::fs::read_dir(dir).into_iter().flatten().flatten() {
+        if entry.file_name().to_string_lossy().starts_with(&prefix) {
+            let _ = std::fs::remove_file(entry.path());
+        }
+    }
+}
+
 /// Install this release into `app` unless it already holds it or a newer one (it updates itself).
 fn install_if_older(app: &Path, tag: &str) -> Result<(), String> {
     let have = std::fs::read_to_string(app.join(VERSION_FILE)).unwrap_or_default();
     if is_bundle(app) && version_tuple(&have) >= version_tuple(tag) {
         return Ok(());
     }
-    tauri::async_runtime::block_on(install_release(app, tag))
+    tauri::async_runtime::block_on(install_release(app, tag))?;
+    add_to_start_menu(app);
+    Ok(())
+}
+
+/// Windows: a Start menu entry for the installed window (Linux: install.sh writes the .desktop entry).
+fn add_to_start_menu(app: &Path) {
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        let Some(roaming) = std::env::var_os("APPDATA") else { return };
+        let link = Path::new(&roaming).join(r"Microsoft\Windows\Start Menu\Programs\Drover.lnk");
+        // Paths go in through the environment, never into the script text.
+        let script = "$s = (New-Object -ComObject WScript.Shell).CreateShortcut($env:DROVER_LNK); \
+                      $s.TargetPath = $env:DROVER_EXE; $s.WorkingDirectory = $env:DROVER_DIR; $s.Save()";
+        let _ = Command::new("powershell").args(["-NoProfile", "-NonInteractive", "-Command", script])
+            .env("DROVER_LNK", link).env("DROVER_EXE", app.join("drover.exe")).env("DROVER_DIR", app)
+            .creation_flags(0x0800_0000) // CREATE_NO_WINDOW
+            .status();
+    }
+    #[cfg(not(windows))]
+    let _ = app;
 }
 
 fn run_and_wait(program: &PathBuf, args: &[OsString]) -> i32 {
