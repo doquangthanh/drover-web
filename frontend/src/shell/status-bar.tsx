@@ -1,4 +1,4 @@
-// #statusbar: connection, counts, branch chip, focused pane path, prefix indicator.
+// #statusbar: connection, counts, branch chip, focused pane path, Ctrl+K chord indicator.
 import { allActions } from "../actions/build-actions";
 import { shortPath } from "../core/format";
 import type { Machine } from "../core/protocol-types";
@@ -29,8 +29,8 @@ export function StatusBar() {
       <BranchChip space={space} onClick={() => allActions.show("changes")} />
       {pane ? <span className="trunc">{shortPath(pane.cwd)}</span> : null}
       <span className="grow" />
-      {prefix ? <span className="prefix-on">Ctrl+A — waiting for a key</span>
-        : <span><span className="k">Ctrl A</span> <span className="k">?</span> shortcuts</span>}
+      {prefix ? <span className="prefix-on">(Ctrl+K) was pressed. Waiting for second key of chord…</span>
+        : <span><span className="k">Ctrl+K</span> <span className="k">Ctrl+S</span> shortcuts</span>}
     </HostPortal>
   );
 }

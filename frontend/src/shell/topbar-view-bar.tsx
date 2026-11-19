@@ -25,7 +25,7 @@ export function TopbarViewBar({ view }: { view: string }) {
             <button key={v} className={"pb" + (view === v ? " on" : "")} onClick={() => allActions.show(v)}>{label}</button>
           ))}
         </div>
-      ) : files ? <span className="meta desk">Ctrl A f · refreshes every 3 s while agents edit</span> : null}
+      ) : files ? <span className="meta desk">Ctrl+Shift+E · refreshes every 3 s while agents edit</span> : null}
       <span className="desk row">{extra?.right}</span>
     </>
   );

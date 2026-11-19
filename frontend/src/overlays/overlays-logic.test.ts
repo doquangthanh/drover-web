@@ -4,7 +4,6 @@ import { AGENTS, buildCommand, cliPreview, createParams, worktreePath, worktreeS
 import { BASE_COMMANDS, buildCommands, filterCommands, splitKeys } from "./palette-commands";
 import { unaskedStopped } from "./restore-logic";
 import { matchAgents, matchSpaces, splitHighlight } from "./search-logic";
-import { shortcutChips } from "./shortcuts-logic";
 import { clampSelection, moveSelection } from "./use-list-keyboard-nav";
 import { SHORTCUTS } from "../core/keys";
 
@@ -21,14 +20,13 @@ describe("palette", () => {
     expect(filterCommands(cmds, "theme").every((c) => c[0] === "Theme" || c[1].toLowerCase().includes("theme"))).toBe(true);
     expect(filterCommands(cmds, "zzzz")).toEqual([]);
   });
-  it("every shortcut-bound action has a command with the same key", () => {
-    for (const [, items] of SHORTCUTS) for (const [key, , action] of items) {
-      const c = BASE_COMMANDS.find((x) => x[2] === action);
-      if (c && c[3] && key.length === 1) expect(c[3].endsWith(` ${key}`)).toBe(true);
-    }
+  it("every palette hint is a chord from the shortcuts sheet for the same action", () => {
+    const sheet = SHORTCUTS.flatMap(([, items]) => items.map(([keys, , action]) => `${action} ${keys}`));
+    for (const c of BASE_COMMANDS) if (c[3]) expect(sheet).toContain(`${c[2]} ${c[3]}`);
   });
-  it("splits key chips", () => {
-    expect(splitKeys("Ctrl B c")).toEqual(["Ctrl B", "c"]);
+  it("splits key chips, one per chord step", () => {
+    expect(splitKeys("Ctrl+K Ctrl+S")).toEqual(["Ctrl+K", "Ctrl+S"]);
+    expect(splitKeys("Ctrl+P")).toEqual(["Ctrl+P"]);
     expect(splitKeys("")).toEqual([]);
   });
 });
@@ -128,15 +126,6 @@ describe("new agent", () => {
   });
 });
 
-describe("shortcuts sheet", () => {
-  it("renders ranges, arrows, plain keys", () => {
-    expect(shortcutChips("1", "Go to tab 1–9")).toEqual({ text: "Go to tab", keys: [
-      { text: "1", chip: true }, { text: "–", chip: false }, { text: "9", chip: true }] });
-    expect(shortcutChips("a", "Answer prompt (then 1–3)").keys.map((k) => k.text)).toEqual(["a", "1", "–", "3"]);
-    expect(shortcutChips("ArrowLeft", "Focus left").keys).toEqual([{ text: "←", chip: true }]);
-    expect(shortcutChips("z", "Zoom")).toEqual({ text: "Zoom", keys: [{ text: "z", chip: true }] });
-  });
-});
 
 describe("restore dialog", () => {
   it("asks only when some stopped pane is new", () => {

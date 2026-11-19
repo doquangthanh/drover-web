@@ -6,7 +6,7 @@ import { conn } from "./connection";
 import { bumpMessagesTick } from "./agent-messages-tick";
 import { setServerIconSet } from "./file-icons";
 import { maybeShowRestore } from "../overlays/restore-dialog";
-import { getActions, setPrefix } from "./keys";
+import { getActions } from "./keys";
 import type { Pane, RawState, StatusEvent } from "./protocol-types";
 import { useStore } from "./store";
 import { setServerTerminalFont } from "./terminal-font";
@@ -22,7 +22,6 @@ export function routeEvent(name: string, data: unknown): void {
     if (name === "resync") conn.reattachAll();
     useChats.getState().setChats((raw.chats as Chat[] | undefined) ?? []);
     if (name === "resync" && store.ui.chatId) void loadHistory(store.ui.chatId); // live ops may have been dropped
-    setPrefix(raw.prefix);
     setServerTheme(raw.theme);
     setServerIconSet(raw.file_icons);
     setServerTerminalFont(raw.terminal_font);

@@ -45,7 +45,7 @@ export function getTerminal(paneId: string): TermEntry {
   // xterm answers the shell's "who are you" query (Device Attributes) and ConPTY hands that answer to PowerShell as
   // typed text ("[?1;2c" on the prompt). The shell never needs it, so it is dropped.
   term.onData((data) => { if (!/^\x1b\[[?>][\d;]*c$/.test(data)) conn.input(paneId, data); });
-  // WebKit + ibus: committed words arrive as input events; a swallowed letter after the prefix still runs its action.
+  // WebKit + ibus: committed words arrive as input events; a swallowed letter after Ctrl+K still runs its chord.
   const imeAllows = webkitIme
     ? guardWebKitIme(el, (data) => conn.input(paneId, data), {
       pending: () => useStore.getState().ui.prefix,

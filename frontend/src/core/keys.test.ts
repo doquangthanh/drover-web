@@ -1,113 +1,111 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SHORTCUTS, actionForKey, directAction, handleKey, registerActions, setPrefix, type KeyLike } from "./keys";
+import { chordAction, directAction, handleKey, registerActions, type KeyLike } from "./keys";
 import { INITIAL_UI, useStore } from "./store";
 
 const ev = (key: string, extra: Partial<KeyLike> = {}): KeyLike => ({ type: "keydown", key, preventDefault: vi.fn(), ...extra });
-const prefixOn = () => useStore.getState().ui.prefix;
+const chordOn = () => useStore.getState().ui.prefix;
 
 beforeEach(() => {
   useStore.setState({ ui: { ...INITIAL_UI } });
-  setPrefix("C-b");
   registerActions({});
 });
 
-describe("key map", () => {
-  it("maps every shortcut and tabs 2-9", () => {
-    for (const [, items] of SHORTCUTS) for (const [key, , action] of items) expect(actionForKey(key)).toBe(action);
-    expect(actionForKey("5")).toBe("gotoTab");
-    expect(actionForKey("q")).toBeUndefined();
+describe("VS Code one-step chords", () => {
+  const act = (key: string, extra: Partial<KeyLike> = {}) => directAction(ev(key, { ctrlKey: true, ...extra }))?.action;
+
+  it("maps the VS Code defaults", () => {
+    expect(act("p", { shiftKey: true })).toBe("palette");
+    expect(act("P", { shiftKey: true })).toBe("palette");
+    expect(act("p")).toBe("search");
+    expect(act("b")).toBe("toggleSidebar");
+    expect(act("n")).toBe("newTab");
+    expect(act("~", { shiftKey: true })).toBe("newAgent");
+    expect(act("w")).toBe("closeCurrentTab");
+    expect(act("\\")).toBe("splitRight");
+    expect(act("%", { shiftKey: true })).toBe("splitRight");
+    expect(act("f")).toBe("find");
+    expect(act(",")).toBe("settings");
+    expect(act("e", { shiftKey: true })).toBe("files");
+    expect(act("g", { shiftKey: true })).toBe("changes");
+    expect(act("Tab")).toBe("nextTab");
+    expect(act("Tab", { shiftKey: true })).toBe("prevTab");
+    expect(act("PageDown")).toBe("nextTab");
+    expect(act("PageUp")).toBe("prevTab");
+  });
+
+  it("Ctrl+1–9 focuses a pane, Alt+1–9 goes to a tab", () => {
+    expect(directAction(ev("3", { ctrlKey: true }))).toEqual({ action: "gotoPane", key: "3" });
+    expect(directAction(ev("4", { altKey: true }))).toEqual({ action: "gotoTab", key: "4" });
+  });
+
+  it("function keys need no modifier", () => {
+    expect(directAction(ev("F1"))?.action).toBe("palette");
+    expect(directAction(ev("F2"))?.action).toBe("rename");
+    expect(directAction(ev("F8"))?.action).toBe("nextBlocked");
+    expect(directAction(ev("F8", { shiftKey: true }))?.action).toBe("nextDone");
+  });
+
+  it("leaves plain keys and Ctrl+A / Ctrl+C / Ctrl+Shift+W to the agent", () => {
+    expect(directAction(ev("p"))).toBeUndefined();
+    expect(act("a")).toBeUndefined();
+    expect(act("c")).toBeUndefined();
+    expect(act("w", { shiftKey: true })).toBeUndefined();
+  });
+});
+
+describe("Ctrl+K two-step chords", () => {
+  const second = (key: string, extra: Partial<KeyLike> = {}) => chordAction(ev(key, extra))?.action;
+
+  it("maps the second key", () => {
+    expect(second("\\", { ctrlKey: true })).toBe("splitDown");
+    expect(second("w")).toBe("closePane");
+    expect(second("W")).toBe("closePane");
+    expect(second("s", { ctrlKey: true })).toBe("help");
+    expect(second("m", { ctrlKey: true })).toBe("zoom");
+    expect(second("ArrowLeft", { ctrlKey: true })).toBe("focusLeft");
+    expect(second("ArrowDown", { ctrlKey: true })).toBe("focusDown");
+    expect(second("ArrowLeft")).toBe("swapPrev");
+    expect(second("ArrowRight")).toBe("swapNext");
+    expect(chordAction(ev("ArrowUp", { shiftKey: true, altKey: true }))).toEqual({ action: "resizePane", key: "ArrowUp", big: true });
+    expect(second("q")).toBeUndefined();
+  });
+
+  it("Ctrl+K arms the chord, the next key runs the action and disarms it", () => {
+    const closePane = vi.fn();
+    registerActions({ closePane });
+    expect(handleKey(ev("k", { ctrlKey: true }), "%1")).toBe(false);
+    expect(chordOn()).toBe(true);
+    expect(handleKey(ev("Control"))).toBe(false); // modifiers alone keep waiting
+    expect(chordOn()).toBe(true);
+    expect(handleKey(ev("w"), "%1")).toBe(false);
+    expect(closePane).toHaveBeenCalledWith({ key: "w", big: undefined, paneId: "%1" });
+    expect(chordOn()).toBe(false);
+  });
+
+  it("an unknown second key is swallowed, not sent to the agent", () => {
+    handleKey(ev("k", { ctrlKey: true }));
+    expect(handleKey(ev("q"))).toBe(false);
+    expect(chordOn()).toBe(false);
   });
 });
 
 describe("handleKey", () => {
   it("passes ordinary keys and non-keydown through", () => {
     expect(handleKey(ev("a"))).toBe(true);
+    expect(handleKey(ev("a", { ctrlKey: true }))).toBe(true);
     expect(handleKey({ ...ev("b", { ctrlKey: true }), type: "keyup" })).toBe(true);
   });
 
-  it("Ctrl+B arms the prefix, next key runs the action", () => {
+  it("runs a one-step chord and consumes it", () => {
     const run = vi.fn();
-    registerActions({ newTab: run });
-    const arm = ev("b", { ctrlKey: true });
-    expect(handleKey(arm, "p1")).toBe(false);
-    expect(arm.preventDefault).toHaveBeenCalled();
-    expect(prefixOn()).toBe(true);
-    expect(handleKey(ev("t"), "p1")).toBe(false);
-    expect(prefixOn()).toBe(false);
-    expect(run).toHaveBeenCalledWith({ key: "t", paneId: "p1" });
+    registerActions({ toggleSidebar: run });
+    const e = ev("b", { ctrlKey: true });
+    expect(handleKey(e, "%2")).toBe(false);
+    expect(e.preventDefault).toHaveBeenCalled();
+    expect(run).toHaveBeenCalledWith({ key: "b", paneId: "%2" });
   });
 
-  it("ignores bare modifiers while armed", () => {
-    handleKey(ev("b", { ctrlKey: true }));
-    expect(handleKey(ev("Shift"))).toBe(false);
-    expect(prefixOn()).toBe(true);
-  });
-
-  it("double prefix sends the raw control char to the pane", () => {
-    const sendRaw = vi.fn();
-    registerActions({ sendRaw });
-    handleKey(ev("b", { ctrlKey: true }), "p1");
-    handleKey(ev("b", { ctrlKey: true }), "p1");
-    expect(sendRaw).toHaveBeenCalledWith("p1", "\x02");
-  });
-
-  it("answer mode: prefix a then digit sends it to the pane", () => {
-    const sendRaw = vi.fn();
-    registerActions({ sendRaw });
-    handleKey(ev("b", { ctrlKey: true }), "p1");
-    handleKey(ev("a"), "p1");
-    expect(handleKey(ev("2"), "p1")).toBe(false);
-    expect(sendRaw).toHaveBeenCalledWith("p1", "2");
-    expect(handleKey(ev("2"), "p1")).toBe(true); // answer mode is one-shot
-  });
-
-  it("honours a custom prefix", () => {
-    setPrefix("C-a");
+  it("a chord with no registered action goes to the agent", () => {
     expect(handleKey(ev("b", { ctrlKey: true }))).toBe(true);
-    expect(handleKey(ev("a", { ctrlKey: true }))).toBe(false);
-    expect(prefixOn()).toBe(true);
-  });
-});
-
-describe("VS Code style chords", () => {
-  const act = (key: string, extra: Partial<KeyLike> = {}) => directAction(ev(key, { ctrlKey: true, ...extra }))?.action;
-  it("maps the common chords", () => {
-    expect(act("p", { shiftKey: true })).toBe("palette");
-    expect(act("P", { shiftKey: true })).toBe("palette");
-    expect(act("p")).toBe("search");
-    expect(act("b")).toBe("toggleSidebar");
-    expect(act("w")).toBe("closeCurrentTab");
-    expect(act("W", { shiftKey: true })).toBe("closePane");
-    expect(act("\\")).toBe("splitRight");
-    expect(act("|", { shiftKey: true })).toBe("splitDown");
-    expect(act("~", { shiftKey: true })).toBe("newTab");
-    expect(act("Tab")).toBe("nextTab");
-    expect(act("Tab", { shiftKey: true })).toBe("prevTab");
-    expect(act("3")).toBe("gotoTab");
-    expect(act("ArrowLeft", { altKey: true })).toBe("focusLeft");
-    expect(directAction(ev("F1"))?.action).toBe("palette");
-  });
-  it("leaves plain keys and unknown chords to the agent", () => {
-    expect(directAction(ev("p"))).toBeUndefined();
-    expect(act("c")).toBeUndefined();
-    expect(act("z")).toBeUndefined();
-  });
-  it("the prefix key still arms the prefix (Ctrl+A) and Ctrl+B now toggles the sidebar", () => {
-    setPrefix("C-a");
-    const toggle = vi.fn();
-    registerActions({ toggleSidebar: toggle });
-    expect(handleKey(ev("a", { ctrlKey: true }), "p1")).toBe(false);
-    expect(prefixOn()).toBe(true);
-    useStore.setState({ ui: { ...INITIAL_UI } });
-    expect(handleKey(ev("b", { ctrlKey: true }), "p1")).toBe(false);
-    expect(toggle).toHaveBeenCalled();
-  });
-  it("with the old Ctrl+B prefix configured, Ctrl+B stays the prefix", () => {
-    setPrefix("C-b");
-    const toggle = vi.fn();
-    registerActions({ toggleSidebar: toggle });
-    handleKey(ev("b", { ctrlKey: true }), "p1");
-    expect(prefixOn()).toBe(true);
-    expect(toggle).not.toHaveBeenCalled();
   });
 });

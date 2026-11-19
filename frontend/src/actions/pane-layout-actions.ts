@@ -28,7 +28,7 @@ function setLayout(layout: Node): void {
   if (t) conn.rpc("tab.set_layout", { tab: t.id, layout }).catch(() => {});
 }
 
-/** Ctrl+arrow after the prefix: 5%, with Alt: 10%. */
+/** Ctrl+K Shift+arrow: 5%, with Alt: 10%. */
 function resizePane({ key, big }: { key: string; big?: boolean }): void {
   const t = tab(ui().tabId), focused = ui().focusedPane, a = ARROW[key];
   if (!t?.layout || !focused || !a) return;
@@ -51,4 +51,6 @@ export const paneLayoutActions = {
   focusRight: () => focusDir("right"),
   swapPrev: () => swapPane(-1),
   swapNext: () => swapPane(1),
+  /** Ctrl+1–9: the Nth pane of the current tab, in layout order. */
+  gotoPane: ({ key }: { key: string }) => { const id = layoutPaneIds(tab(ui().tabId))[Number(key) - 1]; if (id) focusPane(id); },
 };

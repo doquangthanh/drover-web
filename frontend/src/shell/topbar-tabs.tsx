@@ -57,7 +57,7 @@ export function TopbarTabs() {
       ))}
       <button className="pb" aria-label="New terminal" title="New terminal (Ctrl+A c)" onClick={() => allActions.newAgent()}>+</button>
       <span className="grow" />
-      {zoomed ? <span className="zoomed desk">Zoomed · Ctrl A z</span> : null}
+      {zoomed ? <span className="zoomed desk">Zoomed · Ctrl+K Ctrl+M</span> : null}
       <button className="pb wide" onClick={() => allActions.splitRight()} title="Split right (Ctrl+A %)"><Icon name="split" /></button>
       <button className="pb wide" onClick={() => allActions.show("tree")}>Agents</button>
       <button className="pb wide" onClick={() => allActions.show("files")}>Files</button>

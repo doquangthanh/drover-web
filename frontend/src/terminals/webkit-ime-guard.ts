@@ -8,9 +8,9 @@
 export const webkitIme = /AppleWebKit/.test(navigator.userAgent) && !/Chrome|Chromium|Edg\//.test(navigator.userAgent);
 
 export interface ImePrefix {
-  /** True while the prefix (Ctrl+A) waits for its key. */
+  /** True while a Ctrl+K chord waits for its second key. */
   pending: () => boolean;
-  /** Run the prefix action for this key (the key the IME swallowed). */
+  /** Run the chord action for this key (the key the IME swallowed). */
   run: (key: string, shiftKey: boolean) => void;
 }
 
