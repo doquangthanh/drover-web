@@ -88,7 +88,12 @@ fn add_to_start_menu(app: &Path) {
 }
 
 fn run_and_wait(program: &PathBuf, args: &[OsString]) -> i32 {
-    match Command::new(program).args(args).status() {
+    let mut cmd = Command::new(program);
+    cmd.args(args);
+    // This is a window app: a console program it starts (dr.exe) would get a console window of its own.
+    #[cfg(windows)]
+    std::os::windows::process::CommandExt::creation_flags(&mut cmd, 0x0800_0000); // CREATE_NO_WINDOW
+    match cmd.status() {
         Ok(status) => status.code().unwrap_or(1),
         Err(e) => {
             show_error(&format!("could not run {}: {e}", program.display()));
