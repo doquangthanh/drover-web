@@ -5,6 +5,7 @@
 
 mod bridge_commands;
 mod daemon_link;
+mod launcher;
 
 use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
 
@@ -24,6 +25,7 @@ fn open_in_system_browser(url: &str) {
 }
 
 fn main() {
+    launcher::hand_over_if_needed();
     let info = match daemon_link::ensure_daemon() {
         Ok(info) => info,
         Err(e) => {
