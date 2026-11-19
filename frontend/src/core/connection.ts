@@ -8,7 +8,7 @@ function readToken(): string {
     if (token) sessionStorage.setItem("drover-token", token);
     else token = sessionStorage.getItem("drover-token");
   } catch { /* storage may be blocked; keep URL token */ }
-  if (params.has("token")) history.replaceState(null, "", location.pathname);
+  if (params.has("token")) history.replaceState(null, "", location.pathname + location.hash); // keep #view for main.tsx
   return token || "";
 }
 

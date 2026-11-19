@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { installActions } from "./actions/build-actions";
+import { allActions, installActions } from "./actions/build-actions";
 import { App } from "./app";
 import { startCore } from "./core/event-router";
 import { installGlobalKeys } from "./core/keys";
@@ -15,6 +15,14 @@ document.body.appendChild(host);
 
 installActions();
 createRoot(host).render(<App />);
+
+// `#files`, `#changes`, ...: open that view (the native desktop app links here for views it does not have yet).
+const OPENABLE = ["inbox", "changes", "files", "machines", "settings", "server", "tree"];
+const wanted = location.hash.slice(1);
+if (OPENABLE.includes(wanted)) {
+  history.replaceState(null, "", location.pathname);
+  queueMicrotask(() => allActions.show(wanted));
+}
 
 installGlobalKeys();
 startCore();

@@ -13,7 +13,8 @@ const ARROW: Record<string, { dir: Dir; axis: SplitDir; sign: 1 | -1 }> = {
 function focusDir(dir: Dir): void {
   const from = ui().focusedPane;
   if (!from) return;
-  const boxes = Array.from(document.querySelectorAll<HTMLElement>("[data-slot]")).map((el) => {
+  // Only the shown tab: hidden recent tabs stay mounted underneath (workspace.tsx).
+  const boxes = Array.from(document.querySelectorAll<HTMLElement>(".tab-layer.on [data-slot]")).map((el) => {
     const r = el.getBoundingClientRect();
     return { id: el.dataset.slot!, left: r.left, top: r.top, right: r.right, bottom: r.bottom };
   });

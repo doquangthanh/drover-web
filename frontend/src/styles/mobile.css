@@ -96,7 +96,7 @@
   .split > .slot:not(.has-focus), .split > .gutter { display: none !important; }
   .pane { border-radius: 0; border: 0; background: var(--pane); }
   .phead, .status { display: none; }
-  .term { padding: 8px 14px 4px; }
+  .term .xterm { padding: 8px 14px 4px; }
   .stopped { font-size: 15px; }
   .findbar { height: auto; flex-wrap: wrap; padding: 6px 12px; }
   .findbar input { flex: 1; width: auto; min-width: 0; }

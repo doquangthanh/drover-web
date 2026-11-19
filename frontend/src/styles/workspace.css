@@ -35,8 +35,10 @@
 .phead .cwd { flex: 1; min-width: 0; color: var(--dim); }
 .phead .ibtn { width: 22px; height: 22px; opacity: 0; }
 .pane:hover .phead .ibtn, .pane.focus .phead .ibtn { opacity: 1; }
-.term { flex: 1; min-height: 0; padding: 10px 6px 6px 14px; position: relative; overflow: hidden; }
-.term .xterm { height: 100%; }
+.term { flex: 1; min-height: 0; position: relative; overflow: hidden; }
+/* padding sits on .xterm, not .term: FitAddon subtracts only .xterm's padding from .term's height, so padding on .term
+   made it count ~1 row too many and the last line was cut off */
+.term .xterm { height: 100%; padding: 10px 6px 6px 14px; }
 .term .xterm-viewport { background: transparent !important; }
 .term .xterm-viewport::-webkit-scrollbar { width: 8px; }
 .term .xterm-viewport::-webkit-scrollbar-thumb { background: rgb(var(--ink) / .12); border-radius: 4px; }
