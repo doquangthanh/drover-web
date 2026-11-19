@@ -51,5 +51,32 @@ pub fn set_dark_title(window: WebviewWindow, dark: bool) {
             settings.set_gtk_application_prefer_dark_theme(dark);
         }
     });
+    // Windows 11 also colours caption, border and text (set_theme only flips dark mode); Windows 10 ignores them.
+    #[cfg(windows)]
+    if let Ok(hwnd) = window.hwnd() {
+        dwm_caption::paint(hwnd.0, dark);
+    }
+}
+
+#[cfg(windows)]
+mod dwm_caption {
+    use std::ffi::c_void;
+
+    #[link(name = "dwmapi")]
+    unsafe extern "system" {
+        fn DwmSetWindowAttribute(hwnd: *mut c_void, attr: u32, value: *const c_void, size: u32) -> i32;
+    }
+
+    const DEFAULT: u32 = 0xFFFF_FFFF; // DWMWA_COLOR_DEFAULT
+    /// Same colours as the web UI's dark theme (COLORREF 0x00BBGGRR of #131518 and #e4e6e8).
+    pub fn paint(hwnd: *mut c_void, dark: bool) {
+        for (attr, color) in [(35, 0x18_1513), (34, 0x18_1513), (36, 0xE8_E6E4)] {
+            let value: u32 = if dark { color } else { DEFAULT };
+            // SAFETY: hwnd is this window's live handle; an attribute the system doesn't know just fails.
+            unsafe {
+                DwmSetWindowAttribute(hwnd, attr, (&value as *const u32).cast(), 4);
+            }
+        }
+    }
 }
 
