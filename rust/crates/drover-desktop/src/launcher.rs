@@ -4,7 +4,7 @@
 
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use drover_daemon::self_update::{VERSION, version_tuple};
 use drover_daemon::self_update_apply::{VERSION_FILE, default_app_dir, install_release, is_bundle, tag_ok};
@@ -18,7 +18,7 @@ pub fn hand_over_if_needed() {
     let here = std::env::current_exe().ok().and_then(|e| e.parent().map(Path::to_path_buf));
     if let Some(here) = here.filter(|d| is_bundle(d)) {
         if !window_only {
-            std::process::exit(run_and_wait(&here.join(format!("dr{EXE}")), &args));
+            std::process::exit(forward(&here.join(format!("dr{EXE}")), &args));
         }
         return;
     }
@@ -40,7 +40,28 @@ pub fn hand_over_if_needed() {
         let spawned = Command::new(&target).spawn();
         std::process::exit(if spawned.is_ok() { 0 } else { 1 });
     }
-    std::process::exit(run_and_wait(&target, &args));
+    std::process::exit(forward(&target, &args));
+}
+
+/// Run `program args` for the caller. `server run` is the daemon, which runs until stopped: start it and return,
+/// or this launcher (and the bundle's drover.exe it went through) would sit in memory waiting for it.
+fn forward(program: &PathBuf, args: &[OsString]) -> i32 {
+    if args.len() >= 2 && args[0] == "server" && args[1] == "run" {
+        let mut cmd = Command::new(program);
+        cmd.args(args).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
+        #[cfg(windows)]
+        std::os::windows::process::CommandExt::creation_flags(&mut cmd, 0x0800_0000 | 0x0000_0200); // no console, new group
+        #[cfg(unix)]
+        std::os::unix::process::CommandExt::process_group(&mut cmd, 0);
+        return match cmd.spawn() {
+            Ok(_) => 0,
+            Err(e) => {
+                show_error(&format!("could not start {}: {e}", program.display()));
+                1
+            }
+        };
+    }
+    run_and_wait(program, args)
 }
 
 /// `drover.exe.old`, `.old2`...: the one-file drover.exe that the 0.1.4x updater swapped out for this one. That
