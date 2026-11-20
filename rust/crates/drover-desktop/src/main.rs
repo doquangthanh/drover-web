@@ -1,11 +1,13 @@
-//! `drover`: native window around the daemon's web UI (Tauri, system webview). Replaces the pywebview + PyQt
-//! window. Closing the window never stops agents: they live in the daemon. A second `drover` focuses this window.
+//! `drover`: starts the daemon, then opens the GPUI window (`drover-native`, the default, see window_choice.rs) or
+//! this Tauri window around the daemon's web UI (system webview). Closing a window never stops agents: they live in
+//! the daemon. A second `drover` focuses the Tauri window.
 
 #![cfg_attr(windows, windows_subsystem = "windows")]
 
 mod bridge_commands;
 mod daemon_link;
 mod launcher;
+mod window_choice;
 
 use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
 
@@ -33,6 +35,7 @@ fn main() {
             std::process::exit(10);
         }
     };
+    window_choice::open_native_unless_webview();
     let Some(url) = daemon_link::ui_url(&info) else {
         eprintln!("error: daemon.json has no port/token");
         std::process::exit(10);
