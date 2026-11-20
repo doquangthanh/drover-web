@@ -1,9 +1,15 @@
 name: release
-# A tag like v0.2.0 publishes drover-web-<tag>.tar.gz: web/ (icons, ace, favicon) and web_dist/ (the React build).
-# drover-core serves it from DROVER_WEB_DIR (or unpacked next to dr).
+
+# A tag like v0.2.0 (after drover-core has the same tag) publishes:
+#   drover-web-<tag>.tar.gz           web/ (icons, ace, favicon) and web_dist/ (the React build)
+#   drover-window-<os>-<arch>[.exe]   the Tauri window (installed as `drover` in the bundle)
+# each with a .sha256. drover-core's assemble-bundle.yml joins them with dr, dr-py and drover-native.
 on:
   push: { tags: ["v*"] }
+  workflow_dispatch:
+
 permissions: { contents: write }
+
 jobs:
   archive:
     runs-on: ubuntu-22.04
@@ -12,6 +18,54 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - run: npm --prefix frontend ci && npm --prefix frontend run build
-      - run: tar -czf "drover-web-${GITHUB_REF_NAME}.tar.gz" -C src/drover web web_dist
+      - run: |
+          tar -czf "drover-web-${GITHUB_REF_NAME}.tar.gz" -C src/drover web web_dist
+          sha256sum "drover-web-${GITHUB_REF_NAME}.tar.gz" > "drover-web-${GITHUB_REF_NAME}.tar.gz.sha256"
       - uses: softprops/action-gh-release@v2
-        with: { files: "drover-web-*.tar.gz" }
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: drover-web-*.tar.gz*
+
+  window:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: linux, arch: x64, runner: ubuntu-22.04, bin: drover, asset: drover-window-linux-x64 }
+          - { os: linux, arch: arm64, runner: ubuntu-24.04-arm, bin: drover, asset: drover-window-linux-arm64 }
+          - { os: windows, arch: x64, runner: windows-2022, bin: drover.exe, asset: drover-window-windows-x64.exe }
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: "The window installs the bundle of its own version, so drover-core must be at this tag"
+        shell: bash
+        run: grep -q "tag = \"${GITHUB_REF_NAME}\"" rust/crates/drover-desktop/Cargo.toml || { echo "set the drover-core tag in rust/crates/drover-desktop/Cargo.toml and rust/Cargo.toml to ${GITHUB_REF_NAME}" >&2; exit 1; }
+        if: startsWith(github.ref, 'refs/tags/v')
+      - name: System libraries for the Tauri window
+        if: matrix.os == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev librsvg2-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev
+      - name: Rust toolchain
+        shell: bash
+        run: rustup show active-toolchain || rustup toolchain install
+        working-directory: rust
+      - name: Build
+        shell: bash
+        working-directory: rust
+        env:
+          DROVER_RELEASE: "1"  # a drover started outside the bundle installs it (launcher.rs)
+        run: cargo build --release --locked -p drover-desktop
+      - name: Package
+        shell: bash
+        run: |
+          cp "rust/target/release/${{ matrix.bin }}" "${{ matrix.asset }}"
+          sha256sum "${{ matrix.asset }}" > "${{ matrix.asset }}.sha256"
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: |
+            ${{ matrix.asset }}
+            ${{ matrix.asset }}.sha256
