@@ -1,0 +1,3 @@
+# Low-RAM machine: never more than two compiler jobs.
+[build]
+jobs = 2

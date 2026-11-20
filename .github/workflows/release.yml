@@ -1,0 +1,17 @@
+name: release
+# A tag like v0.2.0 publishes drover-web-<tag>.tar.gz: web/ (icons, ace, favicon) and web_dist/ (the React build).
+# drover-core serves it from DROVER_WEB_DIR (or unpacked next to dr).
+on:
+  push: { tags: ["v*"] }
+permissions: { contents: write }
+jobs:
+  archive:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm --prefix frontend ci && npm --prefix frontend run build
+      - run: tar -czf "drover-web-${GITHUB_REF_NAME}.tar.gz" -C src/drover web web_dist
+      - uses: softprops/action-gh-release@v2
+        with: { files: "drover-web-*.tar.gz" }

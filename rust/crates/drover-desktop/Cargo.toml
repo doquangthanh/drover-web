@@ -9,7 +9,7 @@ name = "drover"
 path = "src/main.rs"
 
 [dependencies]
-drover-daemon = { version = "0.2.0-dev", path = "../drover-daemon" }
+drover-daemon = { git = "https://github.com/doquangthanh/drover-core", tag = "v0.2.0-dev" }
 serde_json = "1.0.154"
 tauri = "2.12.6"
 tauri-plugin-dialog = "2.8.4"
