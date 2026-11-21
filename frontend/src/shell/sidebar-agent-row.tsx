@@ -43,7 +43,7 @@ export const SidebarAgentRow = memo(function SidebarAgentRow({ pane, on }: { pan
       ])}>
       <KindIcon kind={pane.kind} />
       {renaming ? <InlineNameInput value={pane.name ?? ""} onCommit={(n) => allActions.setPaneName(pane.id, n)} />
-        : <span className="nm grow trunc">{pane.name}</span>}
+        : <span className="nm grow trunc">{pane.name}{pane.summary ? <span className="sum"> · {pane.summary}</span> : null}</span>}
       {pane.unread ? <span className="dot unread" title="unread" /> : null}
       <span className="t">{ago((pane.since || pane.created_at) as number)}</span>
       <StateMark pane={pane} />

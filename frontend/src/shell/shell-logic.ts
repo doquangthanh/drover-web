@@ -18,6 +18,17 @@ export function spaceIndicatorKind(panes: Pane[], spaceId: string): SpaceIndicat
   return working ? "working" : done ? "done" : null;
 }
 
+/** Pane whose state a tab shows: its most urgent pane (blocked > done > working), so a helper that needs you is
+ *  visible on the tab even when another pane has focus; with nothing urgent, the focused pane. */
+export function tabStatePane(panes: Pane[], tabId: string, focused: Pane | undefined): Pane | undefined {
+  const rank = (p: Pane | undefined) => STATE_ORDER[p?.state ?? ""] ?? 9;
+  let best = focused;
+  for (const p of panes) {
+    if (p.tab_id === tabId && rank(p) <= STATE_ORDER.working && rank(p) < rank(best)) best = p;
+  }
+  return best;
+}
+
 /** Panes of one space, most urgent first (stable for equal states). */
 export function sortedPanesOf(panes: Pane[], spaceId: string): Pane[] {
   return panes.filter((p) => p.space_id === spaceId).sort((a, b) => (STATE_ORDER[a.state] ?? 9) - (STATE_ORDER[b.state] ?? 9));

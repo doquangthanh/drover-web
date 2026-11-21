@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Pane } from "../core/protocol-types";
-import { machineDot, mobileMode, sortedPanesOf, spaceIndicatorKind } from "./shell-logic";
+import { machineDot, mobileMode, sortedPanesOf, spaceIndicatorKind, tabStatePane } from "./shell-logic";
 
 const pane = (id: string, state: string, space_id = "s1"): Pane => ({ id, state, space_id });
 
@@ -33,5 +33,20 @@ describe("mobileMode / machineDot", () => {
     expect(machineDot("connected")).toBe("ok");
     expect(machineDot("error")).toBe("bad");
     expect(machineDot("connecting")).toBe("blocked");
+  });
+});
+
+describe("tabStatePane", () => {
+  const inTab = (id: string, state: string, tab_id = "t1"): Pane => ({ ...pane(id, state), tab_id });
+  it("shows a blocked helper over the focused pane, but only from the same tab", () => {
+    const focused = inTab("1", "idle");
+    const panes = [focused, inTab("2", "working"), inTab("3", "blocked"), inTab("4", "blocked", "t2")];
+    expect(tabStatePane(panes, "t1", focused)?.id).toBe("3");
+    expect(tabStatePane([focused, inTab("2", "working")], "t1", focused)?.id).toBe("2");
+  });
+  it("keeps the focused pane when nothing else is more urgent", () => {
+    const focused = inTab("1", "working");
+    expect(tabStatePane([focused, inTab("2", "idle"), inTab("3", "exited")], "t1", focused)?.id).toBe("1");
+    expect(tabStatePane([], "t1", undefined)).toBeUndefined();
   });
 });

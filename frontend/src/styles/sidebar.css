@@ -23,6 +23,7 @@
 .srow .git { flex: 1; min-width: 0; display: flex; gap: 5px; justify-content: flex-end; align-items: center;
   font-size: 11.5px; color: var(--dim); }
 .srow .t { font-size: 11px; color: var(--dim); flex: none; }
+.srow .sum { color: var(--dim); font-size: 11px; }
 .srow.idle .nm { color: var(--muted); }
 .srow > .trunc { min-width: 0; flex: 1 1 0; }
 .srow .git { flex: 0 0 auto; margin-left: auto; white-space: nowrap; }
