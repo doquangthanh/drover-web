@@ -17,6 +17,8 @@ export interface Pane {
   space_id?: string;
   tab_id?: string;
   machine?: string;
+  /** Display text an agent reported with OSC 7501 `summary=`. */
+  summary?: string;
 }
 
 export type LayoutNode =

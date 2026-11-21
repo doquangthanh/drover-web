@@ -8,8 +8,9 @@ import { InlineNameInput } from "./inline-name-input";
 import { Icon } from "../ui/atoms/icon";
 import { KindIcon } from "../ui/atoms/kind-icon";
 import { StateMark } from "../ui/atoms/state-mark";
+import { tabStatePane } from "./shell-logic";
 
-const TopTab = memo(function TopTab({ tab, on, focused }: { tab: Tab; on: boolean; focused: Pane | undefined }) {
+const TopTab = memo(function TopTab({ tab, on, focused, marked }: { tab: Tab; on: boolean; focused: Pane | undefined; marked: Pane | undefined }) {
   const key = `tab:${tab.id}`;
   const renaming = useRenaming((s) => s.key === key);
   return (
@@ -20,7 +21,7 @@ const TopTab = memo(function TopTab({ tab, on, focused }: { tab: Tab; on: boolea
       onContextMenu={(e) => { e.preventDefault(); void allActions.renameTab(tab.id); }}>
       {focused ? <KindIcon kind={focused.kind} /> : null}
       {renaming ? <InlineNameInput value={tab.name ?? ""} onCommit={(n) => allActions.setTabName(tab.id, n)} /> : tab.name}
-      {focused ? <StateMark pane={focused} /> : null}
+      {marked ? <StateMark pane={marked} /> : null}
       <button className="x" aria-label={`Close tab ${tab.name}`}
         onClick={(e) => { e.stopPropagation(); void allActions.closeTab(tab.id); }}>×</button>
     </div>
@@ -51,10 +52,10 @@ export function TopbarTabs() {
     <>
       <button className="pb mobile-back mobile-only" onClick={() => allActions.mobileBack()} aria-label="Back"><Icon name="back" /></button>
       {sidebar ? null : <button className="pb" aria-label="Show sidebar" onClick={() => allActions.toggleSidebar()}><Icon name="sidebar" /></button>}
-      {tabs.map((t) => (
-        <TopTab key={t.id} tab={t} on={t.id === tabId}
-          focused={(t.focused ? paneById.get(t.focused) : undefined) || panes.find((p) => p.tab_id === t.id)} />
-      ))}
+      {tabs.map((t) => {
+        const focused = (t.focused ? paneById.get(t.focused) : undefined) || panes.find((p) => p.tab_id === t.id);
+        return <TopTab key={t.id} tab={t} on={t.id === tabId} focused={focused} marked={tabStatePane(panes, t.id, focused)} />;
+      })}
       <button className="pb" aria-label="New terminal" title="New terminal (Ctrl+A c)" onClick={() => allActions.newAgent()}>+</button>
       <span className="grow" />
       {zoomed ? <span className="zoomed desk">Zoomed · Ctrl+K Ctrl+M</span> : null}
