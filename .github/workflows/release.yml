@@ -42,6 +42,10 @@ jobs:
         shell: bash
         run: grep -q "tag = \"${GITHUB_REF_NAME}\"" rust/crates/drover-desktop/Cargo.toml || { echo "set the drover-core tag in rust/crates/drover-desktop/Cargo.toml and rust/Cargo.toml to ${GITHUB_REF_NAME}" >&2; exit 1; }
         if: startsWith(github.ref, 'refs/tags/v')
+      - name: "The window downloads the bundle named by its own version, so it must equal the tag"
+        shell: bash
+        run: grep -q "^version = \"${GITHUB_REF_NAME#v}\"" rust/Cargo.toml || { echo "set version in rust/Cargo.toml to ${GITHUB_REF_NAME#v}" >&2; exit 1; }
+        if: startsWith(github.ref, 'refs/tags/v')
       - name: System libraries for the Tauri window
         if: matrix.os == 'linux'
         run: |

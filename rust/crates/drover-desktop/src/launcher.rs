@@ -6,7 +6,7 @@ use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
-use drover_daemon::self_update::{VERSION, version_tuple};
+use drover_daemon::self_update::version_tuple;
 use drover_daemon::self_update_apply::{VERSION_FILE, default_app_dir, install_release, is_bundle, tag_ok};
 
 const EXE: &str = if cfg!(windows) { ".exe" } else { "" };
@@ -22,7 +22,9 @@ pub fn hand_over_if_needed() {
         }
         return;
     }
-    let tag = format!("v{VERSION}");
+    // This program's own version: drover-web is bumped to the release tag. drover-core's VERSION comes from its
+    // pyproject.toml, which only its own CI stamps, so built here it named a release (v0.1.5) with no bundle: 404.
+    let tag = format!("v{}", env!("CARGO_PKG_VERSION"));
     // Only the release workflows set DROVER_RELEASE: a local `cargo build` just opens the window.
     if option_env!("DROVER_RELEASE").is_none() || !tag_ok(&tag) {
         return;
