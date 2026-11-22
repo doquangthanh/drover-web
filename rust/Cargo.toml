@@ -3,7 +3,7 @@ resolver = "3"
 members = ["crates/*"]
 
 [workspace.package]
-version = "0.2.7"
+version = "0.2.8"
 edition = "2024"
 license = "Apache-2.0"
 
@@ -16,4 +16,4 @@ panic = "abort"
 
 # drover-daemon needs the same patched portable-pty as drover-core (ConPTY INHERIT_CURSOR fix, see that repo's rust/Cargo.toml).
 [patch.crates-io]
-portable-pty = { git = "https://github.com/doquangthanh/drover-core", tag = "v0.2.7" }
+portable-pty = { git = "https://github.com/doquangthanh/drover-core", tag = "v0.2.8" }
