@@ -1,4 +1,5 @@
 // View switching, sidebar toggle and the overlay launchers (palette, search, new agent, shortcut list).
+import { getFileUi, patchFileUi } from "../files/files-store";
 import { setUi, ui } from "./action-helpers";
 import { hooks } from "./feature-hooks";
 import { tabSpaceActions } from "./tab-space-actions";
@@ -18,6 +19,11 @@ export const viewActions = {
   search: () => hooks.openSearch(),
   help: () => hooks.openShortcuts(),
   broadcast: () => hooks.openBroadcast(),
+  /** Show or hide the agent beside the editor (Files view). */
+  toggleDock: () => {
+    const id = ui().spaceId;
+    if (id && ui().view === "files") patchFileUi(id, { dock: getFileUi(id).dock === false });
+  },
   inbox: () => show("inbox"),
   changes: () => show("changes"),
   files: () => show("files"),

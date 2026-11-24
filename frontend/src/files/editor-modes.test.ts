@@ -22,6 +22,9 @@ describe("aceThemeFor", () => {
   it("maps app themes and defaults to dark", () => {
     expect(aceThemeFor("light")).toBe("ace/theme/github");
     expect(aceThemeFor("midnight")).toBe("ace/theme/tomorrow_night_blue");
+    expect(aceThemeFor("dracula")).toBe("ace/theme/dracula");
+    expect(aceThemeFor("tokyo-night")).toBe("ace/theme/tokyo_night");
+    expect(aceThemeFor("one-dark")).toBe("ace/theme/one_dark");
     expect(aceThemeFor("nope")).toBe("ace/theme/tomorrow_night");
   });
 });

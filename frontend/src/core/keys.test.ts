@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { chordAction, directAction, handleKey, registerActions, type KeyLike } from "./keys";
+import { chordAction, directAction, handleKey, programKeeps, registerActions, type KeyLike } from "./keys";
 import { INITIAL_UI, useStore } from "./store";
 
 const ev = (key: string, extra: Partial<KeyLike> = {}): KeyLike => ({ type: "keydown", key, preventDefault: vi.fn(), ...extra });
@@ -107,5 +107,14 @@ describe("handleKey", () => {
 
   it("a chord with no registered action goes to the agent", () => {
     expect(handleKey(ev("b", { ctrlKey: true }))).toBe(true);
+  });
+});
+
+describe("programKeeps", () => {
+  beforeEach(() => useStore.setState({ ui: { ...INITIAL_UI } }));
+  it("leaves Ctrl+J (dock toggle) to the terminal program, a newline for shells and agents", () => {
+    expect(programKeeps(ev("j", { ctrlKey: true }))).toBe(true);
+    expect(programKeeps(ev("p", { ctrlKey: true }))).toBe(false);
+    expect(programKeeps({ ...ev("j", { ctrlKey: true }), type: "keyup" })).toBe(false);
   });
 });

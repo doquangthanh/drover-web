@@ -3,12 +3,15 @@ import { useCallback, useEffect } from "react";
 import { useStore } from "../core/store";
 import type { Space } from "../core/protocol-types";
 import { useIsPhone } from "../core/viewport";
-import { promptText } from "../overlays/modal-dialogs";
-import { setSaveHandler } from "./ace-editor-registry";
+import { confirmBox, promptText } from "../overlays/modal-dialogs";
+import { dropDoc, isDirty, setSaveHandler, setSendHandler } from "./ace-editor-registry";
+import { sendSelectionToAgent } from "./send-to-agent";
+import { AgentDock } from "./agent-dock";
 import { FileEditorPane } from "./file-editor-pane";
 import { FileTree } from "./file-tree";
-import { DEFAULT_UI, expandFolders, patchFileUi, useFilesUi } from "./files-store";
-import { useFilesData } from "./use-files-data";
+import { closeTab, withTab } from "./file-tabs-logic";
+import { DEFAULT_UI, expandFolders, getFileUi, patchFileUi, useFilesUi } from "./files-store";
+import { docKey, useFilesData } from "./use-files-data";
 
 function FilesBody({ space }: { space: Space }) {
   const ui = useFilesUi((s) => s.bySpace[space.id]) ?? DEFAULT_UI;
@@ -16,6 +19,21 @@ function FilesBody({ space }: { space: Space }) {
   const { data, loadDir, openFile, refresh, save, createFile, discardEdits } = useFilesData(space);
 
   useEffect(() => { setSaveHandler(() => { void save(); }); return () => setSaveHandler(null); }, [save]);
+  useEffect(() => { setSendHandler(() => sendSelectionToAgent(space)); return () => setSendHandler(null); }, [space]);
+
+  // Every file that gets selected (tree, terminal link, tab) is kept as a tab.
+  useEffect(() => {
+    if (ui.file && !(ui.tabs ?? []).includes(ui.file)) patchFileUi(space.id, { tabs: withTab(ui.tabs, ui.file) });
+  }, [space.id, ui.file, ui.tabs]);
+
+  const closeFileTab = useCallback(async (path: string) => {
+    const cur = getFileUi(space.id);
+    if (isDirty(docKey(space, path)) && !(await confirmBox("Close without saving?", `${path} has changes that are not saved.`, "Close and discard", true))) return;
+    const next = closeTab(withTab(cur.tabs, path), path, cur.file);
+    dropDoc(docKey(space, path));
+    patchFileUi(space.id, { tabs: next.tabs, file: next.file });
+    if (next.file && next.file !== cur.file) void openFile(next.file);
+  }, [space, openFile]);
 
   const toggleDir = useCallback(async (path: string) => {
     const cur = useFilesUi.getState().bySpace[space.id] ?? DEFAULT_UI;
@@ -47,11 +65,12 @@ function FilesBody({ space }: { space: Space }) {
   );
   const viewer = ui.file ? (
     <FileEditorPane space={space} ui={ui} file={ui.file} status={data.status} content={data.content} diff={data.diff}
-      stale={data.stale} onSave={() => { void save(); }} onDiscard={discardEdits} />
+      stale={data.stale} onSave={() => { void save(); }} onDiscard={discardEdits} onSend={() => sendSelectionToAgent(space)}
+      tabs={withTab(ui.tabs, ui.file)} onPickTab={(p) => { void openFile(p); }} onCloseTab={(p) => { void closeFileTab(p); }} />
   ) : <div className="panel grow"><div className="meta" style={{ padding: 14 }}>Pick a file on the left to read or edit it.</div></div>;
 
   const showFile = phone && ui.file && ui.stage === "file";
-  return <div className="vsplit">{phone ? (showFile ? viewer : tree) : <>{tree}{viewer}</>}</div>;
+  return <div className="vsplit">{phone ? (showFile ? viewer : tree) : <>{tree}{viewer}<AgentDock space={space} ui={ui} /></>}</div>;
 }
 
 export default function FilesView() {

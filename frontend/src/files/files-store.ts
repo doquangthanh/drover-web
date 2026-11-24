@@ -7,6 +7,9 @@ export interface FileUi {
   tab: "file" | "diff";
   only: boolean;             // tree shows "Changed" list instead of all files
   stage: "tree" | "file";    // phones show the tree OR the file
+  tabs?: string[];           // open files, in tab order (the selected one is `file`)
+  dock?: boolean;           // an agent's terminal beside the editor (default: shown)
+  dockPane?: string | null;  // which pane the dock shows (default: the focused / most urgent agent)
 }
 
 export const DEFAULT_UI: FileUi = { open: [], file: null, tab: "file", only: false, stage: "tree" };

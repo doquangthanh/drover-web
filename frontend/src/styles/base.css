@@ -1,12 +1,7 @@
+/* Colours (--canvas, --fg, --accent, ...) are generated: themes.generated.css, from drover-core/design/tokens.json. */
 :root {
-  --canvas: #131518; --chrome: #101114; --pane: #17191d; --raised: #2c2e31; --card: #1d1f23;
-  --fg: #eeeeef; --tfg: #d2d4d9; --muted: #98999b; --dim: #85868a; --faint: #4a4d55;
   --border: rgb(var(--ink) / .094); --border2: rgb(var(--ink) / .12);
   --hover: rgb(var(--ink) / .055); --selected: rgb(var(--ink) / .09);
-  --accent: #96b2d7; --working: #76a8ff; --blocked: #f2a33c; --done: #4cc48c; --error: #e8848c;
-  --ink: 255 255 255; --accent-rgb: 150 178 215; --blocked-rgb: 242 163 60;
-  --done-rgb: 76 196 140; --error-rgb: 232 132 140; --working-rgb: 118 168 255; --head: #1b1d21; --add: #a6bd91; --rem: #dc8c95; --on-accent: #101114;
-  --yellow: #d8be87;
   --ui: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: ui-monospace, monospace;
 }

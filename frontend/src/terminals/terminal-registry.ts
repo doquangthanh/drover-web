@@ -5,8 +5,10 @@ import { WebLinksAddon } from "@xterm/addon-web-links";
 import { Terminal } from "@xterm/xterm";
 import { copyText } from "../core/clipboard";
 import { conn } from "../core/connection";
-import { handleKey } from "../core/keys";
+import { handleKey, programKeeps } from "../core/keys";
 import { useStore } from "../core/store";
+import { openPathFromTerminal } from "../files/open-from-terminal";
+import { findPathRefs } from "../files/path-refs";
 import { onThemeChange, termOptions, termTheme } from "../core/theme";
 import { onTerminalFontChange, terminalFontFamily, terminalFontSize } from "../core/terminal-font";
 import { applyTerminalFont, scheduleFit } from "./terminal-fit";
@@ -38,6 +40,20 @@ export function getTerminal(paneId: string): TermEntry {
   const fit = new FitAddon();
   term.loadAddon(fit);
   try { term.loadAddon(new WebLinksAddon(openLink)); } catch { /* optional */ }
+  // File paths the agent prints (src/a.ts:41): Ctrl+Click (Cmd+Click) opens them in the Files view. A plain click
+  // stays with the terminal, which may be capturing the mouse.
+  term.registerLinkProvider({
+    provideLinks(y, done) {
+      const text = term.buffer.active.getLine(y - 1)?.translateToString(true) ?? "";
+      const refs = findPathRefs(text);
+      done(refs.length ? refs.map((r) => ({
+        range: { start: { x: r.start + 1, y }, end: { x: r.end, y } },
+        text: text.slice(r.start, r.end),
+        decorations: { underline: true, pointerCursor: false },
+        activate: (ev: MouseEvent) => { if (ev.ctrlKey || ev.metaKey) openPathFromTerminal(paneId, r); },
+      })) : undefined);
+    },
+  });
   const entry: TermEntry = {
     paneId, el, term, fit, opened: false, lastSize: "", resizeTimer: undefined, refocus: false, wantFocus: false,
     findIndex: 0, findQuery: "", observer: new ResizeObserver(() => scheduleFit(entry)),
@@ -61,6 +77,7 @@ export function getTerminal(paneId: string): TermEntry {
       term.clearSelection();
       return false;
     }
+    if (programKeeps(ev)) return true; // e.g. Ctrl+J stays a newline for the shell / agent
     return handleKey(ev, paneId);
   });
   // Copy as soon as the mouse is released over a selection (Shift+drag selects even when the agent captures the mouse).

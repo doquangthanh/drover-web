@@ -6,7 +6,7 @@ import { machineAlias } from "../core/store-derive";
 import { errorToast, toast } from "../core/toast-store";
 import { confirmBox } from "../overlays/modal-dialogs";
 import { getDoc, isDirty, markSaved, reloadDoc } from "./ace-editor-registry";
-import { expandFolders, getFileUi, parentFolders, patchFileUi } from "./files-store";
+import { expandFolders, getFileUi, parentFolders, patchFileUi, useFilesUi } from "./files-store";
 
 export interface Entry { name: string; path: string; dir: boolean }
 export interface FileContent {
@@ -43,6 +43,9 @@ export function useFilesData(spaceIn: Space) {
   const call = useCallback(<T,>(method: string, params: Record<string, unknown> = {}) =>
     conn.rpc<T>(method, { ...params, ...(machine ? { machine } : {}) }), [machine]);
   const isCurrent = (path: string) => getFileUi(space.id).file === path;
+  // The file whose content `data` holds (or is loading), so a selection made elsewhere can be noticed.
+  const loaded = useRef<string | null>(null);
+  const uiFile = useFilesUi((s) => s.bySpace[space.id]?.file ?? null);
 
   const readFile = useCallback(async (path: string): Promise<FileContent> => {
     try { return await call<FileContent>("files.read", { space: space.id, path }); } catch (e) { return { error: (e as Error).message }; }
@@ -58,6 +61,7 @@ export function useFilesData(spaceIn: Space) {
   }, [call, space.id]);
 
   const openFile = useCallback(async (path: string) => {
+    loaded.current = path;
     patchFileUi(space.id, { file: path, stage: "file" });
     patch({ content: null, diff: null, stale: false });
     const [content, diff] = await Promise.all([readFile(path), readDiff(path, ref.current.status)]);
@@ -128,6 +132,7 @@ export function useFilesData(spaceIn: Space) {
     (async () => {
       try {
         const ui = getFileUi(space.id);
+        loaded.current = ui.file;
         const [root, s] = await Promise.all([
           call<{ entries: Entry[] }>("files.list", { space: space.id, path: "" }),
           call<{ is_repo: boolean; files: Record<string, string> }>("files.status", { space: space.id }),
@@ -141,6 +146,12 @@ export function useFilesData(spaceIn: Space) {
     })();
     return () => { dead = true; };
   }, [call, space, readFile, readDiff, patch]);
+
+  // A file picked outside this view (terminal link, quickfix, #hash) only sets ui.file: load it here, so the
+  // editor never shows (and saves) the previous file's text under the new name.
+  useEffect(() => {
+    if (data.ready && uiFile && uiFile !== loaded.current) void openFile(uiFile);
+  }, [data.ready, uiFile, openFile]);
 
   // The agents are editing these files right now: look for changes every few seconds while this view is open.
   useEffect(() => {

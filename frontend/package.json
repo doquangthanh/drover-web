@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "tokens": "node ../../drover-core/design/gen-tokens.mjs --only web --web .",
+    "tokens:check": "node ../../drover-core/design/gen-tokens.mjs --check --require --only web --web ."
   },
   "dependencies": {
     "@xterm/addon-fit": "0.10.0",

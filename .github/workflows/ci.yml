@@ -7,11 +7,17 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+      # The colours are generated from drover-core/design/tokens.json; check them against its main branch.
+      - uses: actions/checkout@v4
+        with: { repository: doquangthanh/drover-core, ref: main, path: drover-core }
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
+      - name: Generated colours match drover-core/design/tokens.json
+        run: node drover-core/design/gen-tokens.mjs --check --require --only web --web frontend
       - run: npm --prefix frontend ci
       - run: npm --prefix frontend run build
       - run: npm --prefix frontend test
+        env: { DROVER_CORE_DIR: "${{ github.workspace }}/drover-core" }
   window:
     runs-on: ubuntu-22.04
     steps:

@@ -5,6 +5,7 @@ import type { Machine } from "../core/protocol-types";
 import { useStore } from "../core/store";
 import { BranchChip } from "../ui/atoms/branch-chip";
 import { HostPortal } from "./host-portal";
+import { viewHints } from "./shell-logic";
 
 const NO_MACHINES: Machine[] = [];
 
@@ -17,6 +18,7 @@ export function StatusBar() {
   const pane = useStore((s) => (s.ui.focusedPane ? s.paneById.get(s.ui.focusedPane) : undefined));
   const space = useStore((s) => s.spaceById.get(pane?.space_id || s.ui.spaceId || ""));
   const prefix = useStore((s) => s.ui.prefix);
+  const view = useStore((s) => s.ui.view);
   const up = 1 + machines.filter((m) => m.status === "connected").length;
   return (
     <HostPortal id="statusbar">
@@ -30,7 +32,10 @@ export function StatusBar() {
       {pane ? <span className="trunc">{shortPath(pane.cwd)}</span> : null}
       <span className="grow" />
       {prefix ? <span className="prefix-on">(Ctrl+K) was pressed. Waiting for second key of chord…</span>
-        : <span><span className="k">Ctrl+K</span> <span className="k">Ctrl+S</span> shortcuts</span>}
+        : <>
+          {viewHints(view).map(([key, what]) => <span key={key}><span className="k">{key}</span> {what}</span>)}
+          <span><span className="k">?</span> <span className="k">Ctrl+K</span> <span className="k">Ctrl+S</span> shortcuts</span>
+        </>}
     </HostPortal>
   );
 }

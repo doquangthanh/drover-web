@@ -136,3 +136,30 @@ describe("restore dialog", () => {
     expect(unaskedStopped([], new Set())).toEqual([]);
   });
 });
+
+import { searchCommands, suggestedCommands } from "./palette-commands";
+
+describe("palette search", () => {
+  const cmds = buildCommands([["dracula", "Dracula"]], []);
+  it("ranks label start before word start before inside", () => {
+    const labels = searchCommands(cmds, "split").map((h) => h.cmd[1]);
+    expect(labels.slice(0, 2)).toEqual(["Split right", "Split down"]);
+    expect(searchCommands(cmds, "tree").map((h) => h.cmd[2])).toContain("tree");
+  });
+  it("reports which letters matched", () => {
+    const [h] = searchCommands(cmds, "zoom");
+    expect(h.cmd[2]).toBe("zoom");
+    expect(h.marks).toEqual([0, 1, 2, 3]);
+  });
+  it("falls back to letters in order when nothing contains the text", () => {
+    const hit = searchCommands(cmds, "jnat").find((h) => h.cmd[2] === "nextBlocked");
+    expect(hit).toBeTruthy();
+    expect(searchCommands(cmds, "zzzz")).toEqual([]);
+  });
+  it("suggests only existing commands per screen", () => {
+    const s = suggestedCommands(cmds, "files");
+    expect(s.length).toBeGreaterThan(0);
+    expect(s.every((c) => c[0] === "Suggested" && cmds.some((x) => x[2] === c[2]))).toBe(true);
+    expect(suggestedCommands(cmds, "settings")).toEqual([]);
+  });
+});

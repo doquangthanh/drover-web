@@ -7,12 +7,15 @@ import { bumpMessagesTick } from "./agent-messages-tick";
 import { setServerIconSet } from "./file-icons";
 import { maybeShowRestore } from "../overlays/restore-dialog";
 import { getActions } from "./keys";
-import type { Pane, RawState, StatusEvent } from "./protocol-types";
+import { loadWebKeys } from "./load-web-keys";
+import type { CheckSummary, Pane, RawState, StatusEvent } from "./protocol-types";
 import { useStore } from "./store";
 import { setServerTerminalFont } from "./terminal-font";
 import { setServerTheme } from "./theme";
 import { toast, type ToastTone } from "./toast-store";
 import { startUpdateNotifier } from "./update-notifier";
+
+let webKeysLoaded = false;
 
 export function routeEvent(name: string, data: unknown): void {
   const store = useStore.getState();
@@ -22,6 +25,7 @@ export function routeEvent(name: string, data: unknown): void {
     if (name === "resync") conn.reattachAll();
     useChats.getState().setChats((raw.chats as Chat[] | undefined) ?? []);
     if (name === "resync" && store.ui.chatId) void loadHistory(store.ui.chatId); // live ops may have been dropped
+    if (!webKeysLoaded || name === "resync") { webKeysLoaded = true; void loadWebKeys(); }
     setServerTheme(raw.theme);
     setServerIconSet(raw.file_icons);
     setServerTerminalFont(raw.terminal_font);
@@ -36,12 +40,29 @@ export function routeEvent(name: string, data: unknown): void {
     store.upsertPane(data as Pane);
   } else if (name === "status") {
     onStatus(data as StatusEvent);
+  } else if (name === "check") {
+    onCheck(data as CheckSummary);
   } else if (name === "messages") {
     bumpMessagesTick();
   } else if (name === "policy") {
     toast("An agent tried to answer a prompt", "Open the Inbox to allow or deny it.", () => getActions().show?.("inbox"),
       null, { tone: "blocked", action: "Review" });
   }
+}
+
+/** A post-run check moved: keep it in the state (sidebar badges, Changes) and toast a failure once, when it ends. */
+function onCheck(c: CheckSummary): void {
+  const { raw, paneById, ui } = useStore.getState();
+  useStore.getState().setRaw({ ...raw, checks: { ...raw.checks, [c.cwd]: c } });
+  const channels = (raw.notify?.check_failed as string[] | undefined) ?? ["toast"];
+  if (c.status !== "failed" || !channels.includes("toast")) return;
+  const pane = c.pane ? paneById.get(c.pane) : undefined;
+  if (pane && document.hasFocus() && ui.focusedPane === pane.id && ui.view === "changes") return; // already looking at it
+  const failed = (c.steps ?? []).filter((s) => s.status !== "passed").map((s) => s.name).join(", ");
+  toast(`${pane?.name ?? "Checks"} failed checks`, failed || "See Changes", () => {
+    if (pane) getActions().focusPane?.(pane.id);
+    getActions().show?.("changes");
+  }, pane ? { type: "kind", kind: pane.kind || "" } : null, { tone: "error", action: "Review" });
 }
 
 function onStatus(data: StatusEvent): void {

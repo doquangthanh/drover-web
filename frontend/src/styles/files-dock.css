@@ -1,0 +1,41 @@
+/* Agent terminal docked beside the editor (files/agent-dock.tsx). Desktop and tablet only: the phone shows tree OR file. */
+.adock { width: min(460px, 40%); flex: none; }
+.adock .ph { height: 34px; font-size: 12px; }
+.adock-name, .adock-pick { font-weight: 500; }
+.adock-pick { height: 24px; max-width: 220px; background: var(--raised); border: 1px solid var(--border2); border-radius: 6px; padding: 0 6px; color: var(--fg); }
+.adock-term { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; background: var(--pane); }
+.adock-term .xterm { height: 100%; padding: 8px 4px 4px 10px; }
+.adock-tab { width: 26px; flex: none; border: 1px solid var(--border); border-radius: 10px; background: var(--pane); color: var(--muted);
+  writing-mode: vertical-rl; font-size: 12px; }
+.adock-tab:hover { color: var(--fg); background: var(--hover); }
+
+/* palette: matched letters, group name beside a result */
+.pal .it .pm { color: var(--accent); font-weight: 700; }
+.pal .it .pgroup { margin-left: 10px; font-size: 11.5px; color: var(--dim); }
+.keysgrid .pm, .meta .pm { color: var(--accent); font-size: 9px; }
+
+/* open-file tabs (files/file-tabs.tsx) and the breadcrumb in the editor header */
+.ftabs { display: flex; gap: 2px; padding: 4px 6px 0; background: var(--chrome); border-bottom: 1px solid var(--border); overflow-x: auto; flex: none; }
+.ftab { display: flex; align-items: center; gap: 6px; height: 30px; max-width: 200px; padding: 0 6px 0 10px; border: 1px solid transparent; border-bottom: 0;
+  border-radius: 7px 7px 0 0; font-size: 12.5px; color: var(--muted); cursor: pointer; flex: none; }
+.ftab:hover { background: var(--hover); }
+.ftab.on { background: var(--pane); border-color: var(--border); color: var(--fg); }
+.ftab-st { font: 600 10px var(--mono); color: var(--blocked); }
+.ftab-x { width: 18px; height: 18px; border: 0; border-radius: 4px; background: none; color: var(--dim); font-size: 11px; opacity: 0; }
+.ftab:hover .ftab-x, .ftab.on .ftab-x { opacity: 1; }
+.ftab-x:hover { background: var(--hover); color: var(--error); }
+.fcrumb b { color: var(--fg); font-weight: 600; }
+
+/* git marks in the code gutter: added / changed / something removed here */
+.fcode .ace_gutter-cell.drv-add { box-shadow: inset 3px 0 0 var(--done); }
+.fcode .ace_gutter-cell.drv-mod { box-shadow: inset 3px 0 0 var(--blocked); }
+.fcode .ace_gutter-cell.drv-del { box-shadow: inset 3px 0 0 var(--error); }
+
+/* finished agent: banner in the pane, pill in the sidebar row (workspace/review-banner.tsx) */
+.rbanner { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 4px 8px 4px 12px; flex: none; font-size: 12.5px;
+  background: color-mix(in srgb, var(--done) 9%, var(--pane)); border-bottom: 1px solid var(--border); color: var(--tfg); }
+.review-pill { cursor: pointer; }
+.review-pill:hover { filter: brightness(1.2); }
+
+/* review: the hunk the keyboard (F7 / Shift+F7 / A) works on */
+.rvh.cur { box-shadow: inset 2px 0 0 var(--accent); }
