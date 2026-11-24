@@ -140,13 +140,23 @@ export function handleKey(ev: KeyLike, paneId: string | null = null): boolean {
   return true;
 }
 
+/** Actions whose chord the focused program keeps: Ctrl+J is a newline in shells and agent prompts. */
+const PROGRAM_KEEPS = new Set(["toggleDock"]);
+/** True when a terminal (or the editor) should get this key itself instead of running its shortcut. */
+export function programKeeps(ev: KeyLike & { metaKey?: boolean }): boolean {
+  if (ev.type !== "keydown" || chordPending()) return false;
+  const hit = directAction(ev);
+  return !!hit && PROGRAM_KEEPS.has(hit.action);
+}
+
 /** Shortcuts also work when focus is outside a terminal (sidebar, views). Call once at startup. */
 export function installGlobalKeys(): () => void {
   const onKey = (ev: KeyboardEvent) => {
     const t = ev.target as Element | null;
     if (t && t.closest && t.closest(".xterm")) return; // xterm calls handleKey itself
     const { ui } = useStore.getState();
-    if (t && t.closest && t.closest(".ace_editor") && !ui.prefix) return; // the file editor keeps its own Ctrl+F / Ctrl+P / Ctrl+B ...
+    // The file editor keeps its own Ctrl+F / Ctrl+P / Ctrl+B ..., but the agent dock toggle works from it too.
+    if (t && t.closest && t.closest(".ace_editor") && !ui.prefix && directAction(ev)?.action !== "toggleDock") return;
     const inField = !!t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || (t as HTMLElement).isContentEditable);
     if (inField && !ui.prefix && !ev.ctrlKey && !/^F\d$/.test(ev.key)) return;
     if (!inField && !ui.prefix && ev.key === "?" && !ev.ctrlKey && !ev.altKey && actions.help) { ev.preventDefault(); actions.help(); return; }

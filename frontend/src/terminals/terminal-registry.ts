@@ -5,7 +5,7 @@ import { WebLinksAddon } from "@xterm/addon-web-links";
 import { Terminal } from "@xterm/xterm";
 import { copyText } from "../core/clipboard";
 import { conn } from "../core/connection";
-import { handleKey } from "../core/keys";
+import { handleKey, programKeeps } from "../core/keys";
 import { useStore } from "../core/store";
 import { openPathFromTerminal } from "../files/open-from-terminal";
 import { findPathRefs } from "../files/path-refs";
@@ -77,6 +77,7 @@ export function getTerminal(paneId: string): TermEntry {
       term.clearSelection();
       return false;
     }
+    if (programKeeps(ev)) return true; // e.g. Ctrl+J stays a newline for the shell / agent
     return handleKey(ev, paneId);
   });
   // Copy as soon as the mouse is released over a selection (Shift+drag selects even when the agent captures the mouse).
