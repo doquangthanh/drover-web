@@ -67,6 +67,9 @@ export interface Machine {
 export interface RawState extends Snapshot {
   machines?: Machine[];
   policy_pending?: unknown[];
+  /** Latest post-run check result per folder (Rust daemon only; absent on the Python daemon). */
+  checks?: Record<string, CheckSummary>;
+  notify?: Record<string, unknown>;
   prefix?: string;
   theme?: string;
   file_icons?: string;
@@ -81,3 +84,22 @@ export type ServerMessage =
   | { t: "res"; id: number; result?: unknown; error?: { message: string; code?: string | number } }
   | { t: "ev"; name: string; data: unknown }
   | { t: "out" | "replay"; pane: string; data: string };
+
+/** Post-run checks of one folder (`check` event, `checks` map of the state). `cwd` is the daemon's normalised folder key. */
+export interface CheckSummary {
+  cwd: string;
+  pane: string | null;
+  /** queued | running | passed | failed | cancelled */
+  status: string;
+  source?: string;
+  started_at: number;
+  finished_at: number | null;
+  total: number;
+  passed: number;
+  failed: number;
+  steps?: { name: string; status: string }[];
+}
+
+/** One step of a full run (`check.list` with a folder). */
+export interface CheckStepResult { name: string; command: string[]; status: string; exit: number | null; ms: number; output: string }
+export interface CheckRun extends CheckSummary { results: CheckStepResult[] }

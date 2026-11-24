@@ -1,6 +1,7 @@
 // Settings: every config file editable in place (validated on save), appearance, detection rules + tester.
 import { useSettingsNav } from "./settings-nav-store";
 import { useEffect } from "react";
+import { loadWebKeys } from "../core/load-web-keys";
 import { clearTopExtra, setTopExtra } from "../shell/top-extra-store";
 import { AppearancePanel } from "./appearance-panel";
 import { UpdatePanel } from "./update-panel";
@@ -44,7 +45,7 @@ export default function SettingsView() {
   if (error && !data) return <div className="view errtext">{error}</div>;
   if (!data) return null;
 
-  const changed = () => { reload(); reloadRules(); };
+  const changed = () => { reload(); reloadRules(); void loadWebKeys(true); };
   const ruleId = rule && rules.some((r) => r.id === rule) ? rule : rules[0]?.id || null;
   const byName = (n: string): SettingsFile => data.files.find((f) => f.name === n) || { name: n, path: `${data.dir}/${n}`, exists: false, text: "" };
 

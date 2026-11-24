@@ -5,9 +5,7 @@
 .keybar { display: none !important; }
 
 @media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
-  :root { --nav-h: 66px; --m-deep: #0d0e10; --m-field: #1f2125; }
-  :root[data-theme="light"] { --m-deep: var(--canvas); --m-field: var(--raised); }
-  :root[data-theme="midnight"] { --m-deep: var(--chrome); --m-field: var(--raised); }
+  :root { --nav-h: 66px; } /* --m-deep / --m-field come from the theme (themes.generated.css) */
   body { font-size: 14px; }
   /* --vvh follows the on-screen keyboard (mobile-nav.js); the top padding keeps content below the notch */
   .win { inset: 0 0 auto 0; height: var(--vvh, 100dvh); padding-top: env(safe-area-inset-top); background: var(--chrome); }

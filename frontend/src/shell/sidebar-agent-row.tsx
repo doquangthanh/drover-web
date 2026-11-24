@@ -6,7 +6,9 @@ import { openContextMenu } from "../core/context-menu-store";
 import { useRenaming } from "../core/inline-rename-store";
 import { InlineNameInput } from "./inline-name-input";
 import { KindIcon } from "../ui/atoms/kind-icon";
+import { CheckMark } from "../ui/atoms/check-mark";
 import { StateMark } from "../ui/atoms/state-mark";
+import { reviewPane } from "../workspace/review-banner";
 
 const rename = (id: string) => void allActions.rename({ paneId: id });
 const close = (id: string) => void allActions.closePane({ paneId: id });
@@ -46,6 +48,10 @@ export const SidebarAgentRow = memo(function SidebarAgentRow({ pane, on }: { pan
         : <span className="nm grow trunc">{pane.name}{pane.summary ? <span className="sum"> · {pane.summary}</span> : null}</span>}
       {pane.unread ? <span className="dot unread" title="unread" /> : null}
       <span className="t">{ago((pane.since || pane.created_at) as number)}</span>
+      <CheckMark pane={pane} />
+      {pane.state === "done" ? <span className="pill ok review-pill" role="button" tabIndex={0} title="Review what this agent changed"
+        onClick={(e) => { e.stopPropagation(); reviewPane(pane.id); }}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); reviewPane(pane.id); } }}>Review</span> : null}
       <StateMark pane={pane} />
       <RowTool label={`Rename ${pane.name}`} onRun={() => rename(pane.id)}>✎</RowTool>
       <RowTool label={`Close ${pane.name}`} onRun={() => close(pane.id)}>×</RowTool>

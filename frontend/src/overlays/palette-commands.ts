@@ -25,10 +25,12 @@ export const BASE_COMMANDS: PaletteCommand[] = [
   ["Go to", "Inbox", "inbox", "Ctrl+Shift+I", "inbox"],
   ["Go to", "Files: tree, code and changed files", "files", "Ctrl+Shift+E", "folder"],
   ["Go to", "Changes and worktrees", "changes", "Ctrl+Shift+G", "branch"],
+  ["Go to", "Show / hide the agent beside the editor", "toggleDock", "Ctrl+J", "layers"],
   ["Go to", "Machines", "machines", "Ctrl+Shift+M", "server"],
   ["Go to", "Settings", "settings", "Ctrl+,", "gear"],
   ["Go to", "drover-server", "server", "", "server"],
   ["Go to", "Keyboard shortcuts", "help", "Ctrl+K Ctrl+S", "keyboard"],
+  ["Go to", "Check errors: jump to file and line", "quickfix", "", "close"],
   ["System", "Send a test notification", "testNotify", "", "inbox"],
 ];
 
@@ -40,10 +42,58 @@ export function buildCommands(themes: [string, string][], iconSets: [string, str
   ];
 }
 
+export interface PaletteHit { cmd: PaletteCommand; /** indexes of the label's letters that matched (for highlighting) */ marks: number[] }
+
+/** Indexes of `q` as a subsequence of `text` (case-insensitive), or null. */
+function subsequence(text: string, q: string): number[] | null {
+  const t = text.toLowerCase(), marks: number[] = [];
+  let from = 0;
+  for (const ch of q) {
+    const i = t.indexOf(ch, from);
+    if (i < 0) return null;
+    marks.push(i);
+    from = i + 1;
+  }
+  return marks;
+}
+
+const range = (start: number, len: number): number[] => Array.from({ length: len }, (_, i) => start + i);
+
+/** Matches for a query, best first. Substring hits come first (label start, then word start, then inside the label,
+ * then group name only); if there are none, letters-in-order ("nbl" -> "Jump to next agent that needs you…") as a fallback.
+ * Empty query keeps everything in the original order. */
+export function searchCommands(commands: PaletteCommand[], query: string): PaletteHit[] {
+  const q = query.toLowerCase().trim();
+  if (!q) return commands.map((cmd) => ({ cmd, marks: [] }));
+  const scored: { hit: PaletteHit; rank: number }[] = [];
+  for (const cmd of commands) {
+    const label = cmd[1].toLowerCase(), at = label.indexOf(q);
+    if (at >= 0) {
+      const wordStart = at === 0 || /[\s:/(-]/.test(label[at - 1]);
+      scored.push({ hit: { cmd, marks: range(at, q.length) }, rank: at === 0 ? 0 : wordStart ? 1 : 2 });
+    } else if (cmd[0].toLowerCase().includes(q)) scored.push({ hit: { cmd, marks: [] }, rank: 3 });
+  }
+  if (scored.length) return scored.sort((a, b) => a.rank - b.rank).map((s) => s.hit); // stable: ties keep list order
+  if (q.length < 2) return [];
+  return commands.flatMap((cmd) => { const marks = subsequence(cmd[1], q.replace(/\s+/g, "")); return marks ? [{ cmd, marks }] : []; });
+}
+
 /** Substring match on label or group, case-insensitive; empty query keeps everything. */
 export function filterCommands(commands: PaletteCommand[], query: string): PaletteCommand[] {
-  const q = query.toLowerCase().trim();
-  return commands.filter((c) => !q || c[1].toLowerCase().includes(q) || c[0].toLowerCase().includes(q));
+  return searchCommands(commands, query).map((h) => h.cmd);
+}
+
+/** Command ids worth offering first on each screen (only ids that exist as actions). */
+const SUGGESTED: Record<string, string[]> = {
+  workspace: ["newAgent", "splitRight", "find", "nextBlocked", "files"],
+  files: ["changes", "search", "nextBlocked", "help"],
+  changes: ["files", "nextBlocked", "nextDone", "help"],
+  inbox: ["nextBlocked", "files", "changes"],
+};
+
+/** The "Suggested" block shown above everything while the query is empty. */
+export function suggestedCommands(commands: PaletteCommand[], view: string): PaletteCommand[] {
+  return (SUGGESTED[view] ?? []).flatMap((id) => { const c = commands.find((x) => x[2] === id); return c ? [["Suggested", c[1], c[2], c[3], c[4]] as PaletteCommand] : []; });
 }
 
 /** "Ctrl+K Ctrl+S" -> ["Ctrl+K", "Ctrl+S"]: one chip per step; no shortcut -> []. */

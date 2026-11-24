@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Pane } from "../core/protocol-types";
-import { machineDot, mobileMode, sortedPanesOf, spaceIndicatorKind, tabStatePane } from "./shell-logic";
+import { machineDot, mobileMode, sortedPanesOf, spaceIndicatorKind, tabStatePane, viewHints } from "./shell-logic";
 
 const pane = (id: string, state: string, space_id = "s1"): Pane => ({ id, state, space_id });
 
@@ -48,5 +48,13 @@ describe("tabStatePane", () => {
     const focused = inTab("1", "working");
     expect(tabStatePane([focused, inTab("2", "idle"), inTab("3", "exited")], "t1", focused)?.id).toBe("1");
     expect(tabStatePane([], "t1", undefined)).toBeUndefined();
+  });
+});
+
+describe("viewHints", () => {
+  it("gives keys per view and nothing for views without any", () => {
+    expect(viewHints("files").map(([k]) => k)).toContain("Alt+S");
+    expect(viewHints("workspace").map(([k]) => k)).toContain("F8");
+    expect(viewHints("settings")).toEqual([]);
   });
 });

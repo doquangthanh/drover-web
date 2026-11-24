@@ -34,6 +34,16 @@ export function sortedPanesOf(panes: Pane[], spaceId: string): Pane[] {
   return panes.filter((p) => p.space_id === spaceId).sort((a, b) => (STATE_ORDER[a.state] ?? 9) - (STATE_ORDER[b.state] ?? 9));
 }
 
+/** Status bar key hints for the view on screen: [key, what it does]. Only keys that really work there. */
+export function viewHints(view: string): [string, string][] {
+  switch (view) {
+    case "workspace": return [["Ctrl+1–9", "pane"], ["Ctrl+\\", "split"], ["F8", "next agent"]];
+    case "files": return [["Ctrl+S", "save"], ["Alt+S", "send to agent"], ["Ctrl+J", "agent panel"], ["Ctrl+Shift+G", "changes"]];
+    case "changes": return [["F7", "next hunk"], ["A", "reviewed"], ["Ctrl+Shift+E", "files"]];
+    default: return [];
+  }
+}
+
 /** Phone navigation mode: "home" (agent list), "pane" (one terminal full screen) or "view" (any other view). */
 export function mobileMode(view: string, mobilePane: string | null): "home" | "pane" | "view" {
   return view === "workspace" ? (mobilePane ? "pane" : "home") : "view";

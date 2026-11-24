@@ -1,21 +1,16 @@
 // Settings > Appearance: theme cards and file-icon sets, each a small live preview (choice is kept per device).
 import { useSyncExternalStore, type CSSProperties } from "react";
 import { ICON_SETS, chosenIconSet, onIconSetChange, setIconSet } from "../core/file-icons";
-import { THEMES, chosenTheme, onThemeChange, setTheme } from "../core/theme";
+import { chosenTheme, onThemeChange, setTheme } from "../core/theme";
+import { THEME_DEFS, THEME_PREVIEW } from "../core/theme-data.generated";
 import { FileIcon } from "../files/file-icon";
 import { TerminalFontSettings } from "./terminal-font-settings";
-
-const PREVIEW: Record<string, { cv: string; ch: string; cp: string; fg: string; mu: string; ac: string; bd: string; ok: string; note: string }> = {
-  dark: { cv: "#131518", ch: "#101114", cp: "#17191d", fg: "#eeeeef", mu: "#98999b", ac: "#96b2d7", bd: "rgba(255,255,255,.1)", ok: "#a6bd91", note: "default" },
-  light: { cv: "#eef0f3", ch: "#e4e7eb", cp: "#ffffff", fg: "#1a1c20", mu: "#5b6270", ac: "#2f6bb3", bd: "rgba(0,0,0,.1)", ok: "#1a7f4b", note: "" },
-  midnight: { cv: "#0b0e17", ch: "#080a12", cp: "#0f1320", fg: "#e6e9f5", mu: "#8e97b5", ac: "#7c9cff", bd: "rgba(255,255,255,.1)", ok: "#8fd3a8", note: "" },
-};
 
 const Av = ({ c }: { c: string }) => <span className="pav" style={{ background: c }} />;
 const PRow = ({ c, t }: { c: string; t: string }) => <div className="prow"><Av c={c} />{t}</div>;
 
-function ThemeCard({ id, label, on }: { id: string; label: string; on: boolean }) {
-  const p = PREVIEW[id];
+function ThemeCard({ id, label, note, on }: { id: string; label: string; note: string; on: boolean }) {
+  const p = THEME_PREVIEW[id];
   const vars = { "--cv": p.cv, "--ch": p.ch, "--cp": p.cp, "--fg": p.fg, "--mu": p.mu, "--ac": p.ac, "--bd": p.bd } as CSSProperties;
   return (
     <button className={"tcard" + (on ? " on" : "")} onClick={() => setTheme(id)} aria-pressed={on}>
@@ -30,7 +25,7 @@ function ThemeCard({ id, label, on }: { id: string; label: string; on: boolean }
           </div>
         </div>
       </div>
-      <div className="tname">{label}{p.note ? <span className="dim">{` · ${p.note}`}</span> : null}</div>
+      <div className="tname">{label}{note ? <span className="dim">{` · ${note}`}</span> : null}</div>
     </button>
   );
 }
@@ -63,7 +58,7 @@ export function AppearancePanel() {
     <div className="appearance">
       <div className="alab">THEME</div>
       <div className="agrid">
-        {["dark", "light", "midnight"].map((id) => <ThemeCard key={id} id={id} label={THEMES.find((t) => t[0] === id)![1]} on={theme === id} />)}
+        {THEME_DEFS.map((t) => <ThemeCard key={t.id} id={t.id} label={t.label} note={t.note} on={theme === t.id} />)}
       </div>
       <label className="ck" style={{ margin: "10px 0 0" }}>
         <input type="checkbox" checked={theme === "auto"} onChange={(e) => setTheme(e.target.checked ? "auto" : "dark")} />

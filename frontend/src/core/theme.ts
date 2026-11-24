@@ -1,38 +1,14 @@
-// Themes: colours live in css/themes.css; this picks one and recolours the terminals.
+// Themes: the list and every colour come from drover-core/design/tokens.json (generated: theme-data.generated.ts and
+// styles/themes.generated.css); this picks one and recolours the terminals.
 // Order of precedence: this device's choice (localStorage) > `theme` in settings.toml > dark.
 import type { ITerminalOptions, ITheme } from "@xterm/xterm";
+import { TERM_THEMES, THEME_DEFS } from "./theme-data.generated";
 
-export const THEMES: [string, string][] = [
-  ["dark", "Dark"], ["light", "Light"], ["midnight", "Midnight"], ["auto", "Auto (follow system)"],
-];
+/** [id, label] of every theme, then Auto. The list and all colours come from drover-core/design/tokens.json. */
+export const THEMES: [string, string][] = [...THEME_DEFS.map((t): [string, string] => [t.id, t.label]), ["auto", "Auto (follow system)"]];
 
 const TERM_COMMON = { cursorBlink: true };
-const TERM: Record<string, ITheme> = {
-  dark: {
-    background: "#17191d", foreground: "#d2d4d9", cursor: "#d2d4d9", cursorAccent: "#17191d",
-    selectionBackground: "rgba(150,178,215,.32)",
-    black: "#2c2e31", red: "#dc8c95", green: "#a6bd91", yellow: "#d8be87", blue: "#96b2d7",
-    magenta: "#b5a2ce", cyan: "#8cbdc3", white: "#d2d4d9",
-    brightBlack: "#818793", brightRed: "#e8a1a9", brightGreen: "#b9cfa5", brightYellow: "#e6cf9c",
-    brightBlue: "#aec5e4", brightMagenta: "#c8b7de", brightCyan: "#a3cfd4", brightWhite: "#f0f0f2",
-  },
-  light: {
-    background: "#ffffff", foreground: "#2b2f36", cursor: "#2b2f36", cursorAccent: "#ffffff",
-    selectionBackground: "rgba(47,107,179,.25)",
-    black: "#2b2f36", red: "#c0343f", green: "#1a7f4b", yellow: "#946200", blue: "#2f6bb3",
-    magenta: "#8a4fb0", cyan: "#177f88", white: "#8a909c",
-    brightBlack: "#5b6270", brightRed: "#d9505b", brightGreen: "#22a062", brightYellow: "#b57a00",
-    brightBlue: "#4a86d0", brightMagenta: "#a468cc", brightCyan: "#2299a4", brightWhite: "#1a1c20",
-  },
-  midnight: {
-    background: "#0f1320", foreground: "#cdd3e8", cursor: "#cdd3e8", cursorAccent: "#0f1320",
-    selectionBackground: "rgba(124,156,255,.3)",
-    black: "#1f2538", red: "#f08a97", green: "#8fd3a8", yellow: "#ffcf8a", blue: "#7c9cff",
-    magenta: "#c3a6ff", cyan: "#7fd6e3", white: "#cdd3e8",
-    brightBlack: "#6b7494", brightRed: "#ff9aa6", brightGreen: "#a6e6bd", brightYellow: "#ffdca8",
-    brightBlue: "#9cb5ff", brightMagenta: "#d4bdff", brightCyan: "#9fe6f0", brightWhite: "#f2f4fc",
-  },
-};
+const TERM: Record<string, ITheme> = TERM_THEMES;
 
 const KEY = "drover-theme";
 const listeners = new Set<() => void>();

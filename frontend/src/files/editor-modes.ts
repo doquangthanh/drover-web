@@ -7,7 +7,10 @@ const MODE_BY_EXT: Record<string, string> = {
   hpp: "c_cpp", cs: "csharp", go: "golang", rs: "rust", php: "php", rb: "ruby", ini: "ini", cfg: "ini",
   diff: "diff", patch: "diff", kt: "kotlin", swift: "swift", lua: "lua",
 };
-const THEME_FILE: Record<string, string> = { dark: "tomorrow_night", midnight: "tomorrow_night_blue", light: "github" };
+const THEME_FILE: Record<string, string> = {
+  dark: "tomorrow_night", midnight: "tomorrow_night_blue", light: "github", dracula: "dracula", "tokyo-night": "tokyo_night",
+  nord: "nord", catppuccin: "catppuccin", "one-dark": "one_dark", gruvbox: "gruvbox",
+};
 
 export function modeFor(path: string): string {
   const name = (path.split("/").pop() || "").toLowerCase();

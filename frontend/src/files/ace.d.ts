@@ -9,6 +9,8 @@ export interface AceSession {
   setValue(text: string): void;
   getScrollTop(): number;
   setScrollTop(top: number): void;
+  addGutterDecoration(row: number, className: string): void;
+  removeGutterDecoration(row: number, className: string): void;
 }
 export interface AceEditor {
   renderer: { setScrollMargin(top: number, bottom: number): void };
@@ -17,6 +19,11 @@ export interface AceEditor {
   setSession(session: AceSession): void;
   setReadOnly(on: boolean): void;
   resize(force?: boolean): void;
+  /** `column` is 0-based. Scrolls the line to the middle of the view. */
+  gotoLine(line: number, column?: number, animate?: boolean): void;
+  getSelectedText(): string;
+  /** Rows are 0-based. */
+  getSelectionRange(): { start: { row: number }; end: { row: number; column: number } };
   isFocused(): boolean;
   focus(): void;
 }

@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "tokens": "node ../../drover-core/design/gen-tokens.mjs --web .",
+    "tokens:check": "node ../../drover-core/design/gen-tokens.mjs --check --require --web . --desktop ../../drover-desktop/rust/crates/drover-desktop-native/src"
   },
   "dependencies": {
     "@xterm/addon-fit": "0.10.0",
