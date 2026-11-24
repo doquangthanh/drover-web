@@ -27,3 +27,8 @@ describe("formatSelection", () => {
 });
 
 describe("asPaste", () => { it("wraps in bracketed paste", () => { expect(asPaste("hi")).toBe("\x1b[200~hi\x1b[201~"); }); });
+describe("asPaste with control characters", () => {
+  it("cannot end the paste early or type keys", () => {
+    expect(asPaste("a\x1b[201~rm -rf /\r\nb\tc\x07")).toBe("\x1b[200~a[201~rm -rf /\nb\tc\x1b[201~");
+  });
+});

@@ -16,5 +16,8 @@ export function formatSelection(path: string, startLine: number, endLine: number
   return `${where}\n\`\`\`\n${text.replace(/\n$/, "")}\n\`\`\`\n`;
 }
 
-/** Bracketed paste, so a multi-line snippet lands in the agent's prompt instead of being run line by line. */
-export const asPaste = (s: string): string => `\x1b[200~${s}\x1b[201~`;
+/** Bracketed paste, so a multi-line snippet lands in the agent's prompt instead of being run line by line. Control
+ * characters other than tab and newline are dropped: an ESC in the file could end the paste early (`\x1b[201~`) and
+ * type the rest into the agent as keys. */
+export const asPaste = (s: string): string =>
+  `\x1b[200~${s.replace(/\r\n?/g, "\n").replace(/[\x00-\x08\x0b-\x1f\x7f]/g, "")}\x1b[201~`; // eslint-disable-line no-control-regex

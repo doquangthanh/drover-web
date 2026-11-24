@@ -47,3 +47,16 @@ describe("toSpacePath", () => {
   });
   it("needs a space folder", () => { expect(toSpacePath("a.ts", "/x", undefined)).toBeNull(); });
 });
+
+describe("toSpacePath on Windows", () => {
+  it("reads Git Bash /c/ paths and keeps UNC roots", () => {
+    expect(toSpacePath("/c/Users/me/p/src/a.ts", undefined, String.raw`C:\Users\me\p`)).toBe("src/a.ts");
+    expect(toSpacePath("src/a.ts", "/c/Users/me/p", String.raw`C:\Users\me\p`)).toBe("src/a.ts");
+    expect(toSpacePath(String.raw`\\srv\share\p\a.ts`, undefined, String.raw`\\srv\share\p`)).toBe("a.ts");
+    expect(toSpacePath("/srv/share/p/a.ts", undefined, String.raw`\\srv\share\p`)).toBeNull();
+    expect(toSpacePath("/c/x/a.ts", undefined, "/c/x")).toBe("a.ts"); // a Unix space keeps /c as is
+  });
+  it("folds ASCII case only, so the slice stays in place", () => {
+    expect(toSpacePath("C:/W/kx/ab.ts", undefined, "C:/W/\u212Ax")).toBeNull();
+  });
+});

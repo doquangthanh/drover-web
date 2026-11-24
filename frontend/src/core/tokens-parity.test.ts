@@ -12,9 +12,9 @@ const core = process.env.DROVER_CORE_DIR || resolve(frontend, "../../drover-core
 const generator = join(core, "design/gen-tokens.mjs");
 
 describe("design tokens", () => {
-  // CI without a drover-core checkout skips this; with one (set DROVER_CORE_DIR), a stale generated file fails the build.
+  // Needs a drover-core checkout next to this repo or in DROVER_CORE_DIR (CI sets it). Only this repo's files are checked.
   it.skipIf(!existsSync(generator))("generated colours match drover-core/design/tokens.json", () => {
-    expect(() => execFileSync(process.execPath, [generator, "--check", "--web", frontend], { stdio: "pipe" })).not.toThrow();
+    expect(() => execFileSync(process.execPath, [generator, "--check", "--only", "web", "--web", frontend], { stdio: "pipe" })).not.toThrow();
   });
 
   it("every theme has an xterm palette and its own code-editor theme", () => {

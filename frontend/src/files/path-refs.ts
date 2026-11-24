@@ -19,12 +19,21 @@ export function findPathRefs(text: string): PathRef[] {
   return out;
 }
 
-const slash = (p: string) => p.replace(/\\/g, "/").replace(/\/{2,}/g, "/");
+/** Forward slashes, repeated ones folded, except the leading `//` of a UNC path (`\\server\share`). */
+const slash = (p: string) => {
+  const s = p.replace(/\\/g, "/");
+  const unc = /^\/\/[^/]/.test(s);
+  return (unc ? "/" : "") + s.replace(/\/{2,}/g, "/");
+};
 const isAbs = (p: string) => /^([A-Za-z]:)?\//.test(p);
+/** Git Bash / MSYS spell `C:\x` as `/c/x`: turn that into `c:/x` so it compares with a drive-letter space. */
+const msysToDrive = (p: string) => p.replace(/^\/([A-Za-z])(\/|$)/, "$1:/");
+/** Lower-case ASCII only: keeps the length, so the original string can be sliced at the same index. */
+const asciiLower = (s: string) => s.replace(/[A-Z]/g, (c) => c.toLowerCase());
 
 /** Collapse "." and ".." segments of a slash-separated path. */
 function collapse(p: string): string {
-  const root = /^([A-Za-z]:)?\//.exec(p)?.[0] ?? "";
+  const root = /^(\/\/|([A-Za-z]:)?\/)/.exec(p)?.[0] ?? "";
   const out: string[] = [];
   for (const seg of p.slice(root.length).split("/")) {
     if (!seg || seg === ".") continue;
@@ -38,10 +47,11 @@ function collapse(p: string): string {
 export function toSpacePath(ref: string, paneCwd: string | undefined, spaceCwd: string | undefined): string | null {
   if (!spaceCwd) return null;
   const space = collapse(slash(spaceCwd)).replace(/\/$/, "");
-  const base = paneCwd ? collapse(slash(paneCwd)) : space;
-  const p = slash(ref);
-  const full = collapse(isAbs(p) ? p : `${base}/${p}`);
   const win = /^[A-Za-z]:/.test(space); // drive letters: paths compare case-insensitively
-  const a = win ? full.toLowerCase() : full, b = win ? space.toLowerCase() : space;
+  const fix = (s: string) => (win ? msysToDrive(s) : s); // in a drive-letter space, Git Bash prints /c/x for C:\x
+  const base = paneCwd ? collapse(fix(slash(paneCwd))) : space;
+  const p = fix(slash(ref));
+  const full = collapse(isAbs(p) ? p : `${base}/${p}`);
+  const a = win ? asciiLower(full) : full, b = win ? asciiLower(space) : space;
   return a.startsWith(b + "/") ? full.slice(space.length + 1) : null;
 }
