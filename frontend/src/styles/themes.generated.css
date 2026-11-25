@@ -1,4 +1,11 @@
 /* GENERATED from drover-core/design/tokens.json by design/gen-tokens.mjs. Do not edit: change tokens.json and run the generator. */
+:root {
+  --sidebar-width: 260px;
+  --topbar-height: 42px;
+  --status-height: 28px;
+  --pane-radius: 10px;
+  --pane-padding: 8px;
+}
 :root, :root[data-theme="dark"] {
   --canvas: #131518;
   --chrome: #101114;

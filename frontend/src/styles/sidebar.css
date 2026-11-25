@@ -1,4 +1,4 @@
-#sidebar { width: 260px; flex: none; background: var(--chrome); border-right: 1px solid var(--border);
+#sidebar { width: var(--sidebar-width, 260px); flex: none; background: var(--chrome); border-right: 1px solid var(--border);
   display: flex; flex-direction: column; }
 #sidebar.collapsed { display: none; }
 .brand { height: 46px; flex: none; display: flex; align-items: center; gap: 8px; padding: 0 10px 0 14px; }

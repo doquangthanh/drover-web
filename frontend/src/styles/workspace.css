@@ -1,4 +1,4 @@
-.tabs { height: 42px; flex: none; display: flex; align-items: center; gap: 3px; padding: 0 8px 0 10px;
+.tabs { height: var(--topbar-height, 42px); flex: none; display: flex; align-items: center; gap: 3px; padding: 0 8px 0 10px;
   background: var(--chrome); border-bottom: 1px solid var(--border); overflow-x: auto; }
 .tab { height: 29px; display: flex; align-items: center; gap: 7px; padding: 0 10px; border-radius: 7px;
   font-size: 12.8px; color: var(--muted); border: 1px solid transparent; background: none; flex: none; }
@@ -17,7 +17,7 @@
 .pb:hover { background: var(--hover); color: var(--fg); }
 .pb.on { background: var(--raised); border-color: var(--border); color: var(--fg); }
 
-.body { flex: 1; min-height: 0; display: flex; padding: 8px; }
+.body { flex: 1; min-height: 0; display: flex; padding: var(--pane-padding, 8px); }
 .split { display: flex; flex: 1; min-width: 0; min-height: 0; }
 .split.row { flex-direction: row; align-items: stretch; } .split.col { flex-direction: column; }
 .slot { min-width: 0; min-height: 0; display: flex; flex: 1 1 0; }
@@ -27,7 +27,7 @@
 .gutter:hover { background: rgb(var(--accent-rgb) / .15); border-radius: 4px; }
 
 .pane { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--pane);
-  border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  border: 1px solid var(--border); border-radius: var(--pane-radius, 10px); overflow: hidden; }
 .pane.focus { border-color: var(--accent); }
 .phead { height: 30px; flex: none; display: flex; align-items: center; gap: 8px; padding: 0 6px 0 10px;
   border-bottom: 1px solid var(--border); font-size: 12px; }
@@ -49,7 +49,7 @@
 .findbar input { width: 240px; height: 24px; background: var(--canvas); border: 1px solid var(--border2);
   border-radius: 6px; padding: 0 8px; font: 12px var(--mono); color: var(--fg); }
 
-.status { height: 28px; flex: none; display: flex; align-items: center; gap: 16px; padding: 0 14px;
+.status { height: var(--status-height, 28px); flex: none; display: flex; align-items: center; gap: 16px; padding: 0 14px;
   background: var(--chrome); border-top: 1px solid var(--border); font-size: 11.8px; color: var(--muted); }
 .status .blocked { color: var(--blocked); }
 .status .gb { background: none; color: var(--muted); font: inherit; padding: 0; height: auto; }
